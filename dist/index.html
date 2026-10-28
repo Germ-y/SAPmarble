@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#07131f" />
+    <meta name="description" content="SAP 핵심 모듈과 업무 프로세스를 브루마블 방식으로 익히는 로컬 멀티플레이 보드게임" />
+    <title>SAP CITY RUN — Enterprise Board Game</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-a" aria-hidden="true"></div>
+    <div class="ambient ambient-b" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#game" aria-label="SAP CITY RUN 홈">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span><strong>SAP CITY RUN</strong><small>ENTERPRISE BOARD GAME</small></span>
+      </a>
+      <div class="top-actions">
+        <span class="mode-badge"><span class="mode-dot"></span>LOCAL MULTIPLAYER</span>
+        <button class="icon-button" id="soundButton" type="button" aria-label="효과음 켜기" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10H4Zm12.5-1.5a5 5 0 0 1 0 7M19 6a9 9 0 0 1 0 12"/></svg>
+        </button>
+        <button class="text-button" id="rulesButton" type="button">게임 가이드</button>
+        <button class="icon-button danger" id="resetButton" type="button" aria-label="게임 초기화">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v6h6M20 20v-6h-6M5.5 15A7.5 7.5 0 0 0 18 17l2-3M18.5 9A7.5 7.5 0 0 0 6 7l-2 3"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="game" class="game-shell">
+      <section class="board-section" aria-label="게임 보드">
+        <div class="section-heading intro-reveal">
+          <div>
+            <p class="eyebrow">BUILD THE INTELLIGENT ENTERPRISE</p>
+            <h1>SAP의 도시를 연결하고,<br /><span>글로벌 네트워크를 완성하라.</span></h1>
+          </div>
+          <div class="round-status">
+            <span>ROUND</span>
+            <strong id="roundNumber" class="t-digit-group" aria-live="polite">1</strong>
+          </div>
+        </div>
+
+        <div class="board-wrap">
+          <div id="board" class="board" aria-label="24칸 SAP 모듈 보드">
+            <div class="board-core">
+              <div class="core-topline"><span>LIVE SYSTEM</span><span id="systemHealth">98.6%</span></div>
+              <div class="core-visual" aria-hidden="true">
+                <div class="orbit orbit-one"><span></span></div>
+                <div class="orbit orbit-two"><span></span></div>
+                <div class="core-sphere"><b>S/4</b><small>CORE</small></div>
+              </div>
+              <div class="core-copy">
+                <span id="turnEyebrow">NEXT MOVE</span>
+                <strong id="turnHeadline">게임을 시작해 주세요</strong>
+                <p id="turnHint">팀을 구성하고 첫 번째 Go-Live를 준비하세요.</p>
+              </div>
+              <div class="core-metrics">
+                <div><span>설립 허브</span><b id="moduleCount">0</b></div>
+                <div><span>총 기업가치</span><b id="totalValue">0</b></div>
+                <div><span>프로세스 상태</span><b id="processStatus">READY</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="board-legend" aria-label="보드 범례">
+            <span><i class="legend-dot module"></i>모듈</span>
+            <span><i class="legend-dot event"></i>이벤트</span>
+            <span><i class="legend-dot system"></i>시스템</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="control-panel" aria-label="게임 컨트롤">
+        <section class="turn-card">
+          <div class="turn-card-glow" aria-hidden="true"></div>
+          <div class="card-label"><span class="live-pulse"></span>CURRENT OPERATOR</div>
+          <div class="operator-row">
+            <div id="currentAvatar" class="avatar avatar-blue">A</div>
+            <div><strong id="currentName">PLAYER 1</strong><span id="currentRole">Transformation Lead</span></div>
+            <span id="turnChip" class="turn-chip">TURN 01</span>
+          </div>
+          <div class="balance-row">
+            <div><span>운영 예산</span><strong id="currentCash" class="t-digit-group">₡ 1,200</strong></div>
+            <div><span>기업가치</span><strong id="currentValue" class="t-digit-group">0 VP</strong></div>
+          </div>
+        </section>
+
+        <section class="dice-zone">
+          <div class="dice-copy">
+            <span>ROLL THE WORLD</span>
+            <strong id="diceLabel">주사위를 굴려<br />다음 SAP 도시로</strong>
+          </div>
+          <div class="die-stage" aria-hidden="true">
+            <div id="die" class="die">
+              <div class="die-face face-1"><i class="pip p5"></i></div>
+              <div class="die-face face-2"><i class="pip p1"></i><i class="pip p9"></i></div>
+              <div class="die-face face-3"><i class="pip p1"></i><i class="pip p5"></i><i class="pip p9"></i></div>
+              <div class="die-face face-4"><i class="pip p1"></i><i class="pip p3"></i><i class="pip p7"></i><i class="pip p9"></i></div>
+              <div class="die-face face-5"><i class="pip p1"></i><i class="pip p3"></i><i class="pip p5"></i><i class="pip p7"></i><i class="pip p9"></i></div>
+              <div class="die-face face-6"><i class="pip p1"></i><i class="pip p3"></i><i class="pip p4"></i><i class="pip p6"></i><i class="pip p7"></i><i class="pip p9"></i></div>
+            </div>
+          </div>
+          <button id="actionButton" class="primary-action" type="button" disabled>
+            <span id="actionText">게임 시작하기</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+          </button>
+          <p class="keyboard-hint">SPACE 키로도 실행할 수 있어요</p>
+        </section>
+
+        <section class="players-section">
+          <div class="panel-heading"><span>TEAM STATUS</span><b id="activePlayers">0 ACTIVE</b></div>
+          <div id="playersList" class="players-list"></div>
+        </section>
+
+        <section class="activity-section">
+          <div class="panel-heading"><span>PROCESS LOG</span><b>LIVE</b></div>
+          <ol id="activityLog" class="activity-log" aria-live="polite"></ol>
+        </section>
+      </aside>
+    </main>
+
+    <div id="setupLayer" class="setup-layer is-visible">
+      <div class="setup-panel">
+        <div class="setup-brand"><span class="brand-mark"><i></i><i></i><i></i></span><span>SAP CITY RUN</span></div>
+        <div class="setup-grid">
+          <div class="setup-copy">
+            <p class="eyebrow">GLOBAL OFFICE TOUR / 25–40 MIN</p>
+            <h2>당신의 팀이<br /><span>다음 지능형 기업</span>을<br />설계합니다.</h2>
+            <p>전 세계 SAP 오피스 도시에 허브를 세우고, 지역 이벤트를 해결하며 15 VP에 가장 먼저 도달하세요. 모든 진행 상황은 이 브라우저에 자동 저장됩니다.</p>
+            <div class="feature-pills"><span>2–6 PLAYERS</span><span>24 TILES</span><span>AUTO SAVE</span></div>
+          </div>
+          <form id="setupForm" class="setup-form">
+            <div class="form-heading"><span>01</span><div><strong>팀 구성</strong><small>플레이 인원을 선택하고 이름을 입력하세요.</small></div></div>
+            <div class="player-count" role="group" aria-label="플레이어 수">
+              <button type="button" data-count="2" class="is-selected">2명</button>
+              <button type="button" data-count="3">3명</button>
+              <button type="button" data-count="4">4명</button>
+              <button type="button" data-count="5">5명</button>
+              <button type="button" data-count="6">6명</button>
+            </div>
+            <div id="nameFields" class="name-fields"></div>
+            <button class="start-button" type="submit"><span>TRANSFORMATION 시작</span><svg viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></button>
+            <button id="resumeButton" class="resume-button" type="button" hidden>저장된 게임 이어하기</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalLayer" class="modal-layer" aria-hidden="true">
+      <section id="gameModal" class="game-modal t-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <button id="modalClose" class="modal-close" type="button" aria-label="닫기">×</button>
+        <div id="modalIcon" class="modal-icon">↗</div>
+        <p id="modalEyebrow" class="modal-eyebrow">PROCESS UPDATE</p>
+        <h2 id="modalTitle">프로세스 업데이트</h2>
+        <p id="modalBody" class="modal-body"></p>
+        <div id="modalStats" class="modal-stats"></div>
+        <div id="modalActions" class="modal-actions"></div>
+      </section>
+    </div>
+
+    <div id="rulesLayer" class="modal-layer" aria-hidden="true">
+      <section class="rules-modal t-modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+        <button id="rulesClose" class="modal-close" type="button" aria-label="닫기">×</button>
+        <p class="modal-eyebrow">QUICK GUIDE</p>
+        <h2 id="rulesTitle">15 VP를 먼저 확보하세요.</h2>
+        <div class="rules-grid">
+          <article><b>01</b><strong>ROLL</strong><p>주사위를 굴려 업무 프로세스를 따라 이동합니다.</p></article>
+          <article><b>02</b><strong>ESTABLISH</strong><p>SAP 오피스 도시에 허브를 세우면 VP와 네트워크 이용료를 얻습니다.</p></article>
+          <article><b>03</b><strong>RESPOND</strong><p>감사·장애·변경요청 카드는 예산과 가치를 바꿉니다.</p></article>
+          <article><b>04</b><strong>WIN</strong><p>15 VP에 도달하거나 마지막 운영 팀이 되면 승리합니다.</p></article>
+        </div>
+        <button id="rulesConfirm" class="start-button" type="button"><span>확인했어요</span><svg viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></button>
+        <p class="legal-note">학습용 비공식 시뮬레이션이며 SAP SE와 제휴 또는 보증 관계가 없습니다.</p>
+      </section>
+    </div>
+
+    <div id="toast" class="toast t-toast" role="status" aria-live="polite">
+      <span id="toastIcon">✓</span><div><strong id="toastTitle">업데이트 완료</strong><small id="toastBody">프로세스가 반영되었습니다.</small></div>
+    </div>
+    <div id="confetti" class="confetti" aria-hidden="true"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>
