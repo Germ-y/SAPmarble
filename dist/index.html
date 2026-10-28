@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#07131f" />
+    <meta name="theme-color" content="#f7f0dc" />
     <meta name="description" content="SAP 핵심 모듈과 업무 프로세스를 브루마블 방식으로 익히는 로컬 멀티플레이 보드게임" />
     <title>SAP CITY RUN — Enterprise Board Game</title>
     <link rel="stylesheet" href="./styles.css" />
@@ -15,10 +15,10 @@
     <header class="topbar">
       <a class="brand" href="#game" aria-label="SAP CITY RUN 홈">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span><strong>SAP CITY RUN</strong><small>ENTERPRISE BOARD GAME</small></span>
+        <span><strong>SAP CITY RUN</strong><small>WORLD OFFICE TOUR</small></span>
       </a>
       <div class="top-actions">
-        <span class="mode-badge"><span class="mode-dot"></span>LOCAL MULTIPLAYER</span>
+        <span class="mode-badge"><span class="mode-dot"></span>WORLD TOUR MODE</span>
         <button class="icon-button" id="soundButton" type="button" aria-label="효과음 켜기" aria-pressed="false">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6L8 10H4Zm12.5-1.5a5 5 0 0 1 0 7M19 6a9 9 0 0 1 0 12"/></svg>
         </button>
@@ -33,8 +33,8 @@
       <section class="board-section" aria-label="게임 보드">
         <div class="section-heading intro-reveal">
           <div>
-            <p class="eyebrow">BUILD THE INTELLIGENT ENTERPRISE</p>
-            <h1>SAP의 도시를 연결하고,<br /><span>글로벌 네트워크를 완성하라.</span></h1>
+            <p class="eyebrow">✈ PASSPORT READY · 24 STOPS</p>
+            <h1>SAP 도시를 사고,<br /><span>세계를 내 팀 색으로!</span></h1>
           </div>
           <div class="round-status">
             <span>ROUND</span>
@@ -43,30 +43,34 @@
         </div>
 
         <div class="board-wrap">
-          <div id="board" class="board" aria-label="24칸 SAP 모듈 보드">
+          <div id="board" class="board" aria-label="24칸 SAP 세계 여행 보드">
             <div class="board-core">
-              <div class="core-topline"><span>LIVE SYSTEM</span><span id="systemHealth">98.6%</span></div>
-              <div class="core-visual" aria-hidden="true">
-                <div class="orbit orbit-one"><span></span></div>
-                <div class="orbit orbit-two"><span></span></div>
-                <div class="core-sphere"><b>S/4</b><small>CORE</small></div>
+              <div class="core-topline"><span>SAP WORLD TOUR</span><span><b id="systemHealth">98.6%</b> FUN</span></div>
+              <div class="world-scene" aria-hidden="true">
+                <div class="world-map">
+                  <i class="land land-a"></i><i class="land land-b"></i><i class="land land-c"></i><i class="land land-d"></i><i class="land land-e"></i>
+                  <span class="map-pin pin-one"></span><span class="map-pin pin-two"></span><span class="map-pin pin-three"></span>
+                </div>
+                <div class="flight-path"></div>
+                <div class="flying-plane">✈</div>
+                <span class="passport-stamp">READY<br />TO FLY</span>
               </div>
               <div class="core-copy">
-                <span id="turnEyebrow">NEXT MOVE</span>
+                <span id="turnEyebrow">NEXT FLIGHT</span>
                 <strong id="turnHeadline">게임을 시작해 주세요</strong>
                 <p id="turnHint">팀을 구성하고 첫 번째 Go-Live를 준비하세요.</p>
               </div>
               <div class="core-metrics">
                 <div><span>설립 허브</span><b id="moduleCount">0</b></div>
                 <div><span>총 기업가치</span><b id="totalValue">0</b></div>
-                <div><span>프로세스 상태</span><b id="processStatus">READY</b></div>
+                <div><span>여행 상태</span><b id="processStatus">READY</b></div>
               </div>
             </div>
           </div>
           <div class="board-legend" aria-label="보드 범례">
-            <span><i class="legend-dot module"></i>모듈</span>
-            <span><i class="legend-dot event"></i>이벤트</span>
-            <span><i class="legend-dot system"></i>시스템</span>
+            <span><i class="legend-dot module"></i>도시 허브</span>
+            <span><i class="legend-dot event"></i>여행 카드</span>
+            <span><i class="legend-dot system"></i>내 말</span>
           </div>
         </div>
       </section>
@@ -74,7 +78,7 @@
       <aside class="control-panel" aria-label="게임 컨트롤">
         <section class="turn-card">
           <div class="turn-card-glow" aria-hidden="true"></div>
-          <div class="card-label"><span class="live-pulse"></span>CURRENT OPERATOR</div>
+          <div class="card-label"><span class="live-pulse"></span>CURRENT TRAVELER</div>
           <div class="operator-row">
             <div id="currentAvatar" class="avatar avatar-blue">A</div>
             <div><strong id="currentName">PLAYER 1</strong><span id="currentRole">Transformation Lead</span></div>
@@ -88,7 +92,7 @@
 
         <section class="dice-zone">
           <div class="dice-copy">
-            <span>ROLL THE WORLD</span>
+            <span>ROLL &amp; FLY</span>
             <strong id="diceLabel">주사위를 굴려<br />다음 SAP 도시로</strong>
           </div>
           <div class="die-stage" aria-hidden="true">
@@ -126,8 +130,8 @@
         <div class="setup-grid">
           <div class="setup-copy">
             <p class="eyebrow">GLOBAL OFFICE TOUR / 25–40 MIN</p>
-            <h2>당신의 팀이<br /><span>다음 지능형 기업</span>을<br />설계합니다.</h2>
-            <p>전 세계 SAP 오피스 도시에 허브를 세우고, 지역 이벤트를 해결하며 15 VP에 가장 먼저 도달하세요. 모든 진행 상황은 이 브라우저에 자동 저장됩니다.</p>
+            <h2>주사위 하나로<br /><span>SAP 세계여행</span>을<br />떠나볼까요?</h2>
+            <p>전 세계 SAP 도시를 돌며 알록달록한 허브를 세우세요. 친구의 도시에 착륙하면 여행비를 내고, 15 VP를 먼저 모으면 우승!</p>
             <div class="feature-pills"><span>2–6 PLAYERS</span><span>24 TILES</span><span>AUTO SAVE</span></div>
           </div>
           <form id="setupForm" class="setup-form">
@@ -140,7 +144,7 @@
               <button type="button" data-count="6">6명</button>
             </div>
             <div id="nameFields" class="name-fields"></div>
-            <button class="start-button" type="submit"><span>TRANSFORMATION 시작</span><svg viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></button>
+            <button class="start-button" type="submit"><span>✈ WORLD TOUR 시작</span><svg viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></button>
             <button id="resumeButton" class="resume-button" type="button" hidden>저장된 게임 이어하기</button>
           </form>
         </div>
