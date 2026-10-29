@@ -382,7 +382,6 @@ async function movePlayer(steps) {
     await moveToken(player, next);
     if (i < steps - 1) playTone(300 + i * 22, .035);
   }
-  saveGame();
   renderAll();
 }
 
@@ -435,6 +434,7 @@ function resolveTile() {
   player.cash -= payment;
   owner.cash += payment;
   addLog(`${player.name} → ${owner.name}: ${tile.name} 네트워크 이용료 C ${payment}`, owner.color);
+  renderAll();
   const monopoly = hasMonopoly(owner.id, tile.group);
   if (player.cash <= 0) {
     return showModal({ icon: "!", eyebrow: "BANKRUPTCY", title: `${tile.name} 통행료로 파산했습니다`, body: `${owner.name} 팀에 보유 현금과 도시 자산이 이전됩니다.`, color: owner.color, stats: [["청구 통행료", `C ${toll}`], ["지급 금액", `C ${payment}`]], actions: [{ label: "자산 정리", primary: true, onClick: () => { closeGameModal(); eliminatePlayer(player, owner); finishResolution(); } }] });
@@ -667,6 +667,11 @@ function loadSaved() {
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!parsed?.started || !Array.isArray(parsed.players) || parsed.players.length < 2 || parsed.version !== 3) return null;
+    if (["rolling", "resolving"].includes(parsed.phase)) {
+      parsed.phase = "done";
+      parsed.extraRoll = false;
+      if (parsed.players[parsed.current]) parsed.players[parsed.current].doubleStreak = 0;
+    }
     return parsed;
   } catch { return null; }
 }
