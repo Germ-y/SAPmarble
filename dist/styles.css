@@ -1491,3 +1491,24 @@ body {
 }
 .start-tile .player-token:not(.is-active) { width: 13px; height: 17px; }
 .start-tile .player-token:not(.is-active) .token-number { right: -3px; bottom: -2px; width: 8px; height: 8px; font-size: 4.5px; }
+.start-tile .tile-symbol-hq,
+.start-tile .tile-country,
+.start-tile .tile-price { display: none; }
+.start-tile .tile-body {
+  justify-content: flex-start;
+  padding: 5px 4px 0;
+}
+.start-tile .tile-name {
+  display: block;
+  font-size: clamp(7.5px, 1vh, 9px);
+  line-height: 1;
+  white-space: nowrap;
+}
+.start-tile .token-stack {
+  bottom: 4px;
+  min-height: 30px;
+  padding: 2px 0 1px;
+  border-radius: 10px;
+  background: rgba(189,238,232,.7);
+}
+.start-tile .player-token.is-active { width: 22px; height: 28px; }
