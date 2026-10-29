@@ -935,26 +935,30 @@ body {
   .core-metrics div { padding-top: 8px; }
   .control-panel {
     display: grid;
-    grid-template-rows: auto auto auto minmax(72px, 1fr);
+    grid-template-rows: auto auto auto minmax(56px, 1fr);
     gap: 8px;
     max-height: calc(100vh - 94px);
   }
-  .turn-card { padding: 12px; }
+  .turn-card { min-height: 113px; padding: 10px 12px; }
   .operator-row { gap: 9px; margin-top: 9px; }
   .avatar { width: 36px; height: 36px; }
   .balance-row { margin-top: 9px; padding-top: 9px; }
   .balance-row span { font-size: 6.5px; }
   .balance-row strong { margin-top: 3px; font-size: 11px; }
-  .dice-zone { grid-template-columns: 1fr 74px; gap: 5px 9px; padding: 11px 12px; }
+  .dice-zone { grid-template-columns: 1fr 68px; gap: 4px 9px; padding: 8px 11px; }
   .dice-copy strong { font-size: 13px; }
-  .die-stage { height: 59px; transform: scale(.82); }
-  .primary-action { min-height: 40px; }
-  .players-section, .activity-section { padding: 10px; }
-  .panel-heading { margin-bottom: 7px; }
-  .players-list { gap: 6px; }
-  .player-card { gap: 6px; padding: 7px; }
-  .mini-avatar { width: 24px; height: 24px; }
-  .activity-section { min-height: 0; }
+  .die-stage { height: 52px; transform: scale(.74); }
+  .primary-action { min-height: 36px; }
+  .players-section, .activity-section { padding: 8px; }
+  .panel-heading { margin-bottom: 5px; }
+  .players-list { gap: 5px; }
+  .player-card { gap: 4px 6px; padding: 5px 6px; }
+  .mini-avatar { width: 22px; height: 22px; }
+  .team-stats { gap: 3px; }
+  .team-stat { padding: 3px 4px; }
+  .team-stat small { font-size: 5.4px; }
+  .team-stat b { font-size: 7.6px; }
+  .activity-section { min-height: 56px; }
   .activity-log { max-height: none; }
 }
 
