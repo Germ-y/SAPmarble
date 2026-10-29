@@ -1,6 +1,7 @@
 const COLORS = ["#25e5d8", "#ff756d", "#ffc14e", "#927cff", "#56b7ff", "#c9ff57"];
 const ROLES = ["Global Strategist", "Cloud Architect", "Market Explorer", "Innovation Lead", "People Champion", "Data Navigator"];
 const REGION_COLORS = { HQ: "#25e5d8", EUROPE: "#16a7ff", AMERICAS: "#ff756d", MEA: "#ffc14e", APJ: "#927cff", EVENT: "#ffc14e" };
+const REGION_LABELS = { HQ: "HQ", EUROPE: "EUR", AMERICAS: "AMER", MEA: "MEA", APJ: "APJ", EVENT: "EVENT" };
 
 const TILES = [
   { type: "start", name: "Walldorf", country: "HQ · Germany", flag: "🇩🇪", region: "HQ", note: "GLOBAL HQ" },
@@ -73,7 +74,7 @@ function buildBoard() {
     el.style.gridColumn = pos.col;
     el.style.setProperty("--tile-color", REGION_COLORS[tile.region]);
     el.title = tile.type === "city" ? `${tile.name}, ${tile.country} · 허브 설립비 ₡${tile.price}` : tile.name;
-    el.innerHTML = `<span class="tile-index">${String(index).padStart(2, "0")} · ${tile.region}</span><span class="tile-flag">${tile.flag}</span><strong class="tile-name">${tile.name}</strong><span class="tile-meta"><span>${tile.country}</span><b class="tile-price">${tile.price ? `₡${tile.price}` : tile.note || "DRAW"}</b></span><span class="token-stack"></span>`;
+    el.innerHTML = `<span class="tile-index">${String(index).padStart(2, "0")} · ${REGION_LABELS[tile.region]}</span><span class="tile-flag">${tile.flag}</span><strong class="tile-name">${tile.name}</strong><span class="tile-meta"><span>${tile.country}</span><b class="tile-price">${tile.price ? `₡${tile.price}` : tile.note || "DRAW"}</b></span><span class="token-stack"></span>`;
     board.appendChild(el);
   });
 }
