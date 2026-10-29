@@ -1657,3 +1657,16 @@ body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
   .dice-zone { grid-template-columns: minmax(0, 1fr) 112px; }
   .dice-pair { gap: 7px; transform: scale(.9); }
 }
+
+/* Keep the cash label and amount comfortably inside the highlighted card. */
+.balance-row-four > .cash-balance:first-child {
+  min-height: 48px;
+  gap: 14px;
+  padding: 10px 14px;
+}
+.balance-row-four > .cash-balance:first-child span,
+.balance-row-four > .cash-balance:first-child strong { min-width: 0; }
+
+@media (max-width: 470px) {
+  .balance-row-four > .cash-balance:first-child { padding-inline: 12px; }
+}
