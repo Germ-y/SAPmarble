@@ -1739,7 +1739,9 @@ body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--turn-color) 28%, transparent), transparent 42%);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(0, 112, 242, .24), transparent 44%),
+    linear-gradient(90deg, rgba(3, 24, 47, .08), rgba(3, 24, 47, .18));
 }
 .turn-transition-band {
   position: absolute;
@@ -1747,11 +1749,21 @@ body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
   width: 116vw;
   height: clamp(150px, 24vh, 210px);
   overflow: hidden;
-  border-block: 4px solid var(--ink);
+  border-block: 3px solid rgba(255,255,255,.94);
   background:
-    linear-gradient(100deg, color-mix(in srgb, var(--turn-color) 88%, white), var(--turn-color) 56%, color-mix(in srgb, var(--turn-color) 72%, #142339));
-  box-shadow: 0 14px 0 rgba(30,42,64,.95), 0 34px 70px rgba(20,32,50,.28);
+    linear-gradient(105deg, #003b70 0%, #0a6ed1 27%, #0070f2 58%, #00a1e0 100%);
+  box-shadow: 0 12px 0 rgba(4, 41, 80, .95), 0 34px 70px rgba(0, 63, 128, .28);
   transform: translateX(-115%) skewX(-5deg);
+}
+.turn-transition-band::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 8%;
+  width: 28%;
+  height: 100%;
+  clip-path: polygon(34% 0, 100% 0, 72% 100%, 0 100%);
+  background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.03));
 }
 .turn-transition.is-open .turn-transition-band { animation: turn-band-sweep 1100ms var(--stagger-ease) both; }
 .turn-transition-band i {
@@ -1762,22 +1774,45 @@ body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
   background: rgba(255,255,255,.7);
   transform: rotate(19deg);
 }
-.turn-transition-band i:nth-child(1) { left: 14%; opacity: .45; }
-.turn-transition-band i:nth-child(2) { left: 78%; width: 38px; opacity: .16; }
-.turn-transition-band i:nth-child(3) { left: 84%; width: 9px; opacity: .38; }
+.turn-transition-band i:nth-child(1) { left: 12%; opacity: .26; }
+.turn-transition-band i:nth-child(2) { left: 76%; width: 38px; opacity: .12; }
+.turn-transition-band i:nth-child(3) { left: 87%; width: 9px; opacity: .28; }
 .turn-transition-card {
   position: relative;
   z-index: 1;
   width: min(660px, calc(100vw - 36px));
   padding: 24px 34px 26px;
-  color: var(--ink);
+  color: #fff;
   text-align: center;
-  text-shadow: 0 2px 0 rgba(255,255,255,.45);
+  text-shadow: 0 2px 12px rgba(0, 36, 77, .24);
+}
+.turn-transition-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  color: rgba(255,255,255,.78);
+  font-size: clamp(8px, .9vw, 11px);
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+.sap-logo-turn {
+  width: 47px;
+  height: 24px;
+  padding-right: 8px;
+  background: #fff;
+  color: #0875c9;
+  filter: drop-shadow(0 3px 8px rgba(0, 35, 78, .22));
+  font-size: 15px;
 }
 .turn-transition-kicker {
+  padding: 5px 9px;
+  border: 1px solid rgba(255,255,255,.5);
+  border-radius: 999px;
+  color: #fff;
   font-size: clamp(10px, 1.2vw, 14px);
   font-weight: 900;
-  letter-spacing: .16em;
+  letter-spacing: .11em;
 }
 .turn-transition-hero {
   display: flex;
@@ -1801,16 +1836,17 @@ body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
   place-items: center;
   width: clamp(52px, 6vw, 76px);
   aspect-ratio: 1;
-  border: 4px solid var(--ink);
+  border: 3px solid #fff;
   border-radius: 50%;
   color: var(--turn-color);
   background: white;
-  box-shadow: 5px 6px 0 var(--ink);
+  box-shadow: 0 0 0 5px var(--turn-color), 0 10px 26px rgba(0, 40, 88, .28);
   font-size: clamp(23px, 2.7vw, 36px);
   font-weight: 900;
   text-shadow: none;
 }
 .turn-transition-role {
+  color: rgba(255,255,255,.82);
   font-size: clamp(10px, 1.25vw, 15px);
   font-weight: 900;
   letter-spacing: .08em;
@@ -1831,7 +1867,7 @@ body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
 }
 @keyframes turn-card-focus {
   0%, 100% { box-shadow: 4px 5px 0 var(--ink); }
-  42% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--player-color) 52%, transparent), 8px 10px 0 var(--ink); }
+  42% { box-shadow: 0 0 0 5px rgba(0, 112, 242, .38), 0 0 0 9px color-mix(in srgb, var(--player-color) 42%, transparent), 8px 10px 0 var(--ink); }
 }
 @keyframes turn-token-focus {
   0%, 100% { filter: drop-shadow(0 0 0 transparent); }
@@ -1842,6 +1878,7 @@ body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
   .turn-transition-band { height: 150px; }
   .turn-transition-card { padding-inline: 18px; }
   .turn-transition-hero { gap: 12px; }
+  .turn-transition-brand > span:not(.sap-logo-turn) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
