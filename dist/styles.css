@@ -1325,3 +1325,98 @@ body {
   .balance-row-four > .balance-card:nth-child(3) { padding-left: 7px; border-left: 1.5px solid rgba(29,45,68,.72); }
   .die-stage { transform: scale(.88); }
 }
+
+/* Arrival decisions stay beside the board instead of covering it. */
+@media (min-width: 1181px) {
+  #modalLayer.arrival-layer {
+    inset: 62px 0 0;
+    display: grid;
+    grid-template-columns: calc(clamp(500px, calc(100vh - 145px), 680px) + 26px) 365px;
+    align-items: start;
+    justify-content: center;
+    gap: clamp(18px, 2vw, 30px);
+    padding: 14px 18px 18px;
+    background: transparent;
+    backdrop-filter: none;
+    pointer-events: none;
+  }
+  #modalLayer.arrival-layer.is-open { pointer-events: none; }
+  #modalLayer .game-modal {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    width: 365px;
+    max-height: calc(100vh - 94px);
+    padding: 19px 18px 17px;
+    overflow: auto;
+    pointer-events: auto;
+    box-shadow: 7px 9px 0 var(--ink), 0 20px 55px rgba(29,45,68,.2);
+  }
+  #modalLayer .game-modal::before { left: -10px; width: 16px; height: 34px; }
+  #modalLayer .modal-close { top: 11px; right: 11px; width: 29px; height: 29px; }
+  #modalLayer .modal-icon {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    width: 40px;
+    height: 40px;
+    font-size: 19px;
+  }
+  #modalLayer .modal-eyebrow {
+    grid-column: 2;
+    margin: 1px 38px 4px 7px;
+    font-size: 7px;
+    line-height: 1.2;
+  }
+  #modalLayer .game-modal h2 {
+    grid-column: 2;
+    margin: 0 38px 0 7px;
+    font-size: 20px;
+    line-height: 1.1;
+  }
+  #modalLayer .modal-body {
+    grid-column: 1 / -1;
+    margin-top: 14px;
+    font-size: 9px;
+    line-height: 1.55;
+  }
+  #modalLayer .modal-stats {
+    grid-column: 1 / -1;
+    gap: 6px;
+    margin-top: 13px;
+  }
+  #modalLayer .modal-stat { padding: 8px 9px; }
+  #modalLayer .modal-stat b { margin-top: 2px; font-size: 12px; }
+  #modalLayer .modal-actions {
+    grid-column: 1 / -1;
+    gap: 7px;
+    margin-top: 14px;
+  }
+  #modalLayer .modal-action { min-height: 40px; }
+  #gameModal.t-modal {
+    transform: translateX(24px) scale(.97);
+    transform-origin: right center;
+  }
+  #gameModal.t-modal.is-open { transform: translateX(0) scale(1); }
+  #gameModal.t-modal.is-closing { transform: translateX(18px) scale(.98); }
+}
+
+@media (max-width: 1180px) {
+  #modalLayer.arrival-layer {
+    place-items: end center;
+    padding: 12px;
+    background: linear-gradient(to bottom, transparent 0 34%, rgba(56,72,89,.22) 58%, rgba(56,72,89,.48));
+    backdrop-filter: none;
+  }
+  #modalLayer .game-modal {
+    width: min(620px, 100%);
+    max-height: min(58vh, 620px);
+    padding: 22px;
+    border-radius: 22px 22px 14px 14px;
+  }
+  #gameModal.t-modal {
+    transform: translateY(28px) scale(.98);
+    transform-origin: bottom center;
+  }
+  #gameModal.t-modal.is-open { transform: translateY(0) scale(1); }
+  #gameModal.t-modal.is-closing { transform: translateY(22px) scale(.98); }
+}
