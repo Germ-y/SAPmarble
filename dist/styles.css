@@ -856,3 +856,116 @@ body {
   .round-status { min-width: 66px; width: 66px; height: 66px; }
   .player-count { grid-template-columns: repeat(5, 1fr); }
 }
+
+/* Compact tabletop layout + team scoreboards */
+.sap-logo {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 30px;
+  padding-right: 9px;
+  clip-path: polygon(0 0, 100% 0, 74% 100%, 0 100%);
+  color: #fff;
+  background: linear-gradient(135deg, #12a8e0 0%, #0875c9 58%, #075aa5 100%);
+  filter: drop-shadow(2px 2px 0 var(--ink));
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 19px;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -1.8px;
+  line-height: 1;
+}
+.sap-logo-small { width: 50px; height: 26px; padding-right: 8px; font-size: 16px; }
+.sap-logo-mini { width: 43px; height: 22px; padding-right: 7px; font-size: 14px; filter: drop-shadow(1px 1px 0 var(--ink)); }
+.core-brand { display: inline-flex; align-items: center; gap: 7px; padding: 0 !important; border: 0 !important; background: transparent !important; transform: none !important; }
+.core-brand > b { padding: 5px 8px; border: 2px solid var(--ink); border-radius: 999px; background: var(--amber); }
+
+.balance-row-four { grid-template-columns: 1.28fr 1fr 1fr .72fr; }
+.balance-row-four > div { min-width: 0; padding-inline: 8px; }
+.balance-row-four > div:first-child { padding-left: 0; }
+.balance-row-four > div + div { padding-left: 8px; }
+.balance-row-four strong { white-space: nowrap; }
+
+.player-card { grid-template-columns: auto minmax(0, 1fr); }
+.team-card-head { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 5px; }
+.team-card-head strong { min-width: 0; max-width: none; }
+.team-card-head em { padding: 2px 4px; border: 1px solid var(--ink); border-radius: 999px; color: var(--ink); background: var(--amber); font-size: 6px; font-style: normal; font-weight: 900; letter-spacing: .06em; }
+.team-stats { grid-column: 1 / -1; display: grid; grid-template-columns: 1.18fr 1fr .64fr; gap: 4px; margin-top: 1px; }
+.team-stat { min-width: 0; margin: 0 !important; padding: 5px 5px 4px; border: 1.5px solid rgba(29,45,68,.45); border-radius: 7px; background: rgba(255,255,255,.7); }
+.team-stat small, .team-stat b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.team-stat small { color: #697586; font-size: 5.8px; font-weight: 800; letter-spacing: .02em; }
+.team-stat b { margin-top: 2px; color: var(--ink); font-size: 8px; line-height: 1; }
+.team-stat.cash { background: color-mix(in srgb, var(--player-color) 18%, white); }
+.team-stat.goal { background: #fff3c4; }
+.team-stat.hubs { text-align: center; background: #eaf7d7; }
+.player-card.is-out .team-stat { background: #edf0f2; }
+
+@media (min-width: 1181px) {
+  .topbar { min-height: 62px; padding-block: 8px; }
+  .game-shell {
+    grid-template-columns: minmax(560px, 1fr) 365px;
+    align-items: start;
+    gap: clamp(18px, 2vw, 30px);
+    padding-top: 14px;
+    padding-bottom: 18px;
+  }
+  .section-heading { margin: 0 0 10px; }
+  .section-heading .eyebrow { margin-bottom: 4px; font-size: 8px; }
+  .section-heading h1 { font-size: clamp(25px, 2.4vw, 40px); line-height: 1; }
+  .round-status { min-width: 64px; width: 64px; height: 64px; border-width: 2px; box-shadow: 3px 4px 0 var(--ink); }
+  .round-status strong { font-size: 23px; }
+  .board-wrap { width: max-content; max-width: 100%; margin-inline: auto; padding: 10px; border-radius: 22px; }
+  .board {
+    width: clamp(470px, calc(100vh - 235px), 680px);
+    min-height: 0;
+    gap: clamp(5px, .8vh, 8px);
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-rows: repeat(7, minmax(0, 1fr));
+  }
+  .board-legend { gap: 12px; padding-top: 7px; }
+  .tile { padding: clamp(5px, .8vh, 8px); border-radius: 11px; box-shadow: 2px 3px 0 var(--ink); }
+  .tile-flag { width: clamp(22px, 3.4vh, 34px); height: clamp(22px, 3.4vh, 34px); }
+  .tile-name { margin-top: 3px; font-size: clamp(7px, 1.15vh, 11px); }
+  .tile-meta { font-size: clamp(5px, .75vh, 7px); }
+  .board-core { padding: clamp(16px, 2.6vh, 28px); }
+  .world-scene { width: min(330px, 78%); margin-block: 3px 1px; }
+  .core-metrics { margin-top: clamp(8px, 1.4vh, 14px); }
+  .core-metrics div { padding-top: 8px; }
+  .control-panel {
+    display: grid;
+    grid-template-rows: auto auto auto minmax(72px, 1fr);
+    gap: 8px;
+    max-height: calc(100vh - 94px);
+  }
+  .turn-card { padding: 12px; }
+  .operator-row { gap: 9px; margin-top: 9px; }
+  .avatar { width: 36px; height: 36px; }
+  .balance-row { margin-top: 9px; padding-top: 9px; }
+  .balance-row span { font-size: 6.5px; }
+  .balance-row strong { margin-top: 3px; font-size: 11px; }
+  .dice-zone { grid-template-columns: 1fr 74px; gap: 5px 9px; padding: 11px 12px; }
+  .dice-copy strong { font-size: 13px; }
+  .die-stage { height: 59px; transform: scale(.82); }
+  .primary-action { min-height: 40px; }
+  .players-section, .activity-section { padding: 10px; }
+  .panel-heading { margin-bottom: 7px; }
+  .players-list { gap: 6px; }
+  .player-card { gap: 6px; padding: 7px; }
+  .mini-avatar { width: 24px; height: 24px; }
+  .activity-section { min-height: 0; }
+  .activity-log { max-height: none; }
+}
+
+@media (max-width: 1180px) {
+  .balance-row-four { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 470px) {
+  .sap-logo { width: 48px; height: 25px; font-size: 16px; }
+  .brand { gap: 8px; }
+  .balance-row-four { grid-template-columns: 1fr 1fr; row-gap: 10px; }
+  .balance-row-four > div:nth-child(3) { padding-left: 0; border-left: 0; }
+  .players-list { grid-template-columns: 1fr; }
+}

@@ -14,7 +14,7 @@
 
     <header class="topbar">
       <a class="brand" href="#game" aria-label="SAP CITY RUN 홈">
-        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="sap-logo" role="img" aria-label="SAP 로고">SAP</span>
         <span><strong>SAP CITY RUN</strong><small>WORLD OFFICE TOUR</small></span>
       </a>
       <div class="top-actions">
@@ -45,7 +45,7 @@
         <div class="board-wrap">
           <div id="board" class="board" aria-label="24칸 SAP 세계 여행 보드">
             <div class="board-core">
-              <div class="core-topline"><span>SAP WORLD TOUR</span><span><b id="systemHealth">98.6%</b> FUN</span></div>
+              <div class="core-topline"><span class="core-brand"><span class="sap-logo sap-logo-mini" role="img" aria-label="SAP 로고">SAP</span><b>WORLD TOUR</b></span><span><b id="systemHealth">98.6%</b> FUN</span></div>
               <div class="world-scene" aria-hidden="true">
                 <div class="world-map">
                   <i class="land land-a"></i><i class="land land-b"></i><i class="land land-c"></i><i class="land land-d"></i><i class="land land-e"></i>
@@ -84,9 +84,11 @@
             <div><strong id="currentName">PLAYER 1</strong><span id="currentRole">Transformation Lead</span></div>
             <span id="turnChip" class="turn-chip">TURN 01</span>
           </div>
-          <div class="balance-row">
+          <div class="balance-row balance-row-four">
             <div><span>운영 예산</span><strong id="currentCash" class="t-digit-group">₡ 1,200</strong></div>
             <div><span>기업가치</span><strong id="currentValue" class="t-digit-group">0 VP</strong></div>
+            <div><span>우승까지</span><strong id="currentGoal" class="t-digit-group">15 VP</strong></div>
+            <div><span>보유 도시</span><strong id="currentHubs" class="t-digit-group">0</strong></div>
           </div>
         </section>
 
@@ -126,7 +128,7 @@
 
     <div id="setupLayer" class="setup-layer is-visible">
       <div class="setup-panel">
-        <div class="setup-brand"><span class="brand-mark"><i></i><i></i><i></i></span><span>SAP CITY RUN</span></div>
+        <div class="setup-brand"><span class="sap-logo sap-logo-small" role="img" aria-label="SAP 로고">SAP</span><span>SAP CITY RUN</span></div>
         <div class="setup-grid">
           <div class="setup-copy">
             <p class="eyebrow">GLOBAL OFFICE TOUR / 25–40 MIN</p>
@@ -175,7 +177,7 @@
           <article><b>04</b><strong>WIN</strong><p>15 VP에 도달하거나 마지막 운영 팀이 되면 승리합니다.</p></article>
         </div>
         <button id="rulesConfirm" class="start-button" type="button"><span>확인했어요</span><svg viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></button>
-        <p class="legal-note">학습용 비공식 시뮬레이션이며 SAP SE와 제휴 또는 보증 관계가 없습니다.</p>
+        <p class="legal-note">학습용 비공식 시뮬레이션이며 SAP SE와 제휴 또는 보증 관계가 없습니다. SAP 및 SAP 로고는 SAP SE의 상표입니다.</p>
       </section>
     </div>
 

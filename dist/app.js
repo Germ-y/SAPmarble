@@ -139,6 +139,8 @@ function renderAll() {
   $("#turnChip").textContent = `TURN ${String(state.turn).padStart(2, "0")}`;
   setDigits($("#currentCash"), `₡ ${player.cash.toLocaleString("ko-KR")}`);
   setDigits($("#currentValue"), `${player.value} VP`);
+  setDigits($("#currentGoal"), `${Math.max(0, 15 - player.value)} VP`);
+  setDigits($("#currentHubs"), String(player.owned.length));
   setDigits($("#roundNumber"), String(state.round));
   $("#moduleCount").textContent = Object.keys(state.owners).length;
   $("#totalValue").textContent = `${state.players.reduce((sum, item) => sum + item.value, 0)} VP`;
@@ -162,7 +164,9 @@ function renderPlayers() {
     const card = document.createElement("div");
     card.className = `player-card ${player.id === state.current ? "is-current" : ""} ${!player.active ? "is-out" : ""}`;
     card.style.setProperty("--player-color", player.color);
-    card.innerHTML = `<span class="mini-avatar">${escapeHtml(player.name.slice(0,1).toUpperCase())}</span><div><strong>${escapeHtml(player.name)}</strong><span>₡${player.cash.toLocaleString("ko-KR")} · ${player.value} VP · ${player.owned.length} HUB</span></div>`;
+    const remainingVp = Math.max(0, 15 - player.value);
+    card.setAttribute("aria-label", `${player.name}, 보유 자금 ${player.cash}, 우승까지 ${remainingVp} VP, 보유 도시 ${player.owned.length}개`);
+    card.innerHTML = `<span class="mini-avatar">${escapeHtml(player.name.slice(0,1).toUpperCase())}</span><div class="team-card-head"><strong>${escapeHtml(player.name)}</strong>${player.id === state.current ? '<em>NOW</em>' : ''}</div><div class="team-stats"><span class="team-stat cash"><small>보유 자금</small><b>₡${player.cash.toLocaleString("ko-KR")}</b></span><span class="team-stat goal"><small>우승까지</small><b>${remainingVp} VP</b></span><span class="team-stat hubs"><small>도시</small><b>${player.owned.length}</b></span></div>`;
     list.appendChild(card);
   });
   $("#activePlayers").textContent = `${state.players.filter(player => player.active).length} ACTIVE`;
