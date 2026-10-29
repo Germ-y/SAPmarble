@@ -961,6 +961,7 @@ body {
     display: grid;
     grid-template-rows: auto auto auto minmax(56px, 1fr);
     gap: 8px;
+    height: calc(100vh - 94px);
     max-height: calc(100vh - 94px);
   }
   .turn-card { min-height: 113px; padding: 10px 12px; }
