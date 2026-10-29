@@ -74,7 +74,12 @@ function buildBoard() {
     el.style.gridColumn = pos.col;
     el.style.setProperty("--tile-color", REGION_COLORS[tile.region]);
     el.title = tile.type === "city" ? `${tile.name}, ${tile.country} · 허브 설립비 ₡${tile.price}` : tile.name;
-    el.innerHTML = `<span class="tile-index"><b>${String(index).padStart(2, "0")}</b><em>${REGION_LABELS[tile.region]}</em></span><span class="tile-flag">${tile.flag}</span><strong class="tile-name">${tile.name}</strong><span class="tile-meta"><span>${tile.country}</span><b class="tile-price">${tile.price ? `₡${tile.price}` : tile.note || "DRAW"}</b></span><span class="token-stack"></span>`;
+    const symbol = tile.type === "event"
+      ? `<span class="tile-symbol">${escapeHtml(tile.flag)}</span>`
+      : tile.type === "start"
+        ? `<span class="tile-symbol tile-symbol-hq">HQ</span>`
+        : "";
+    el.innerHTML = `<span class="tile-index"><b>${String(index).padStart(2, "0")}</b><em>${REGION_LABELS[tile.region]}</em></span><div class="tile-body">${symbol}<strong class="tile-name">${escapeHtml(tile.name)}</strong><span class="tile-country">${escapeHtml(tile.country)}</span></div><b class="tile-price">${tile.price ? `₡ ${tile.price}` : escapeHtml(tile.note || "DRAW")}</b><span class="token-stack"></span>`;
     board.appendChild(el);
   });
 }
@@ -137,6 +142,7 @@ function renderAll() {
   $("#currentAvatar").textContent = player.name.slice(0, 1).toUpperCase();
   $("#currentName").textContent = player.name;
   $("#currentRole").textContent = ROLES[player.id];
+  $("#currentPosition").textContent = `현재 위치 · ${TILES[player.position].name}`;
   $("#turnChip").textContent = `TURN ${String(state.turn).padStart(2, "0")}`;
   setDigits($("#currentCash"), `₡ ${player.cash.toLocaleString("ko-KR")}`);
   setDigits($("#currentValue"), `${player.value} VP`);
@@ -255,13 +261,21 @@ async function rollDice() {
   $("#processStatus").textContent = "MOVING";
   const result = Math.floor(Math.random() * 6) + 1;
   const die = $("#die");
+  const dieStage = die.closest(".die-stage");
   die.classList.remove("is-rolling");
+  dieStage.classList.remove("is-rolling-stage", "is-landed");
   void die.offsetWidth;
   die.classList.add("is-rolling");
+  dieStage.classList.add("is-rolling-stage");
   playTone(220, .08);
-  await wait(reducedMotion ? 40 : 720);
+  const rollDuration = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--die-roll-duration")) || 1100;
+  await wait(reducedMotion ? 40 : rollDuration);
   die.classList.remove("is-rolling");
+  dieStage.classList.remove("is-rolling-stage");
   die.style.transform = ({ 1: "rotateX(0deg) rotateY(0deg)", 2: "rotateY(-90deg)", 3: "rotateX(-90deg)", 4: "rotateX(90deg)", 5: "rotateY(90deg)", 6: "rotateY(180deg)" })[result];
+  void dieStage.offsetWidth;
+  dieStage.classList.add("is-landed");
+  window.setTimeout(() => dieStage.classList.remove("is-landed"), reducedMotion ? 50 : 420);
   $("#diceLabel").innerHTML = `<span style="color:var(--cyan)">${result}</span>칸 이동합니다<br />글로벌 경로 동기화`;
   addLog(`${currentPlayer().name} 팀이 ${result}을 굴렸습니다.`, currentPlayer().color);
   await movePlayer(result);
