@@ -150,39 +150,57 @@ function renderAll() {
   $("#turnEyebrow").textContent = state.phase === "done" ? "CITY SYNCED" : "NEXT DESTINATION";
   $("#turnHeadline").textContent = `${player.name}의 글로벌 턴`;
   $("#turnHint").textContent = state.phase === "done" ? "현재 도시 처리가 완료되었습니다. 다음 팀으로 넘겨주세요." : "주사위를 굴려 다음 SAP 오피스로 이동하세요.";
-  renderPlayers();
+  renderPassport();
   renderOwnership();
   renderLog();
   updateAction();
   $$(".tile").forEach(tile => tile.classList.toggle("is-current", Number(tile.dataset.index) === player.position));
-  $$(".player-token").forEach(token => token.classList.toggle("is-active", Number(token.dataset.player) === player.id));
+  $$(".player-token").forEach(token => {
+    const isActive = Number(token.dataset.player) === player.id;
+    token.classList.toggle("is-active", isActive);
+    token.classList.toggle("is-other", !isActive);
+  });
 }
 
-function renderPlayers() {
-  const list = $("#playersList");
-  list.replaceChildren();
-  state.players.forEach(player => {
-    const card = document.createElement("div");
-    card.className = `player-card ${player.id === state.current ? "is-current" : ""} ${!player.active ? "is-out" : ""}`;
-    card.style.setProperty("--player-color", player.color);
-    const remainingVp = Math.max(0, 15 - player.value);
-    card.setAttribute("aria-label", `${player.name}, 보유 자금 ${player.cash}, 우승까지 ${remainingVp} VP, 보유 도시 ${player.owned.length}개`);
-    card.innerHTML = `<span class="mini-avatar">${escapeHtml(player.name.slice(0,1).toUpperCase())}</span><div class="team-card-head"><strong>${escapeHtml(player.name)}</strong>${player.id === state.current ? '<em>NOW</em>' : ''}</div><div class="team-stats"><span class="team-stat cash"><small>보유 자금</small><b>₡${player.cash.toLocaleString("ko-KR")}</b></span><span class="team-stat goal"><small>우승까지</small><b>${remainingVp} VP</b></span><span class="team-stat hubs"><small>도시</small><b>${player.owned.length}</b></span></div>`;
-    list.appendChild(card);
-  });
-  $("#activePlayers").textContent = `${state.players.filter(player => player.active).length} ACTIVE`;
+function renderPassport() {
+  const player = currentPlayer();
+  const passport = $("#passportCard");
+  const currentCity = TILES[player.position];
+  const remainingVp = Math.max(0, 15 - player.value);
+  const cityCards = player.owned.length
+    ? player.owned.map(tileIndex => {
+        const tile = TILES[tileIndex];
+        return `<span class="passport-city" style="--city-color:${REGION_COLORS[tile.region]}"><i>${String(tileIndex).padStart(2, "0")}</i><b>${escapeHtml(tile.name)}</b><small>+${tile.vp} VP</small></span>`;
+      }).join("")
+    : `<div class="passport-empty"><b>첫 허브를 기다리는 중</b><span>도시에 도착해 SAP 허브를 설립해 보세요.</span></div>`;
+  passport.style.setProperty("--player-color", player.color);
+  passport.setAttribute("aria-label", `${player.name}의 개인 현황. 보유 자금 ${player.cash}, 기업가치 ${player.value} VP, 보유 도시 ${player.owned.length}개`);
+  passport.innerHTML = `
+    <div class="passport-summary">
+      <div class="passport-money"><span>사용 가능 자금</span><strong>₡ ${player.cash.toLocaleString("ko-KR")}</strong></div>
+      <div class="passport-progress"><span>우승까지</span><strong>${remainingVp} VP</strong></div>
+      <div class="passport-location"><span>현재 위치</span><strong>${escapeHtml(currentCity.name)}</strong></div>
+    </div>
+    <div class="passport-assets-head"><span>내가 인수한 SAP 도시</span><b>${player.owned.length} HUB${player.owned.length === 1 ? "" : "S"}</b></div>
+    <div class="passport-assets">${cityCards}</div>`;
+  $("#passportStatus").textContent = player.active ? `${player.name} ONLY` : "TRIP ENDED";
 }
 
 function renderOwnership() {
   $$(".tile-owner").forEach(node => node.remove());
+  $$(".tile").forEach(tile => tile.classList.remove("is-my-hub", "is-rival-hub"));
+  const activePlayer = currentPlayer();
   Object.entries(state.owners).forEach(([tileIndex, ownerId]) => {
     const tile = $(`.tile[data-index="${tileIndex}"]`);
     const owner = state.players[ownerId];
     if (!tile || !owner) return;
+    const isMine = owner.id === activePlayer.id;
+    tile.classList.add(isMine ? "is-my-hub" : "is-rival-hub");
+    tile.style.setProperty("--owner-color", owner.color);
     const marker = document.createElement("i");
     marker.className = "tile-owner";
     marker.style.setProperty("--owner-color", owner.color);
-    marker.title = `${owner.name} 허브`;
+    marker.title = isMine ? `내 허브 · ${tile.querySelector(".tile-name")?.textContent || ""}` : "다른 팀이 운영 중인 허브";
     tile.appendChild(marker);
   });
 }
