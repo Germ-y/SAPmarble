@@ -276,16 +276,22 @@ async function moveToken(player, position) {
   const last = token.getBoundingClientRect();
   if (reducedMotion) return;
   token.classList.add("is-moving");
-  token.style.transition = "none";
-  token.style.transform = `translate(${first.left - last.left}px, ${first.top - last.top}px) scale(.82)`;
-  await new Promise(requestAnimationFrame);
-  await new Promise(requestAnimationFrame);
-  token.style.transition = "transform 240ms cubic-bezier(.22,1,.36,1)";
-  token.style.transform = "translate(0,0) scale(1)";
-  await wait(250);
+  const rootStyle = getComputedStyle(document.documentElement);
+  const stepDuration = Number.parseFloat(rootStyle.getPropertyValue("--token-step-duration")) || 520;
+  const settleDuration = Number.parseFloat(rootStyle.getPropertyValue("--token-settle-duration")) || 90;
+  const travelEase = rootStyle.getPropertyValue("--token-travel-ease").trim() || "cubic-bezier(0.22, 1, 0.36, 1)";
+  const dx = first.left - last.left;
+  const dy = first.top - last.top;
+  const lift = Math.min(14, Math.max(8, Math.hypot(dx, dy) * .13));
+  const travel = token.animate([
+    { transform: `translate(${dx}px, ${dy}px) scale(.88)`, offset: 0 },
+    { transform: `translate(${dx * .48}px, ${dy * .48 - lift}px) scale(1.08)`, offset: .56 },
+    { transform: "translate(0, 0) scale(1)", offset: 1 }
+  ], { duration: stepDuration, easing: travelEase, fill: "both" });
+  await travel.finished;
+  travel.cancel();
+  await wait(settleDuration);
   token.classList.remove("is-moving");
-  token.style.transition = "";
-  token.style.transform = "";
 }
 
 function resolveTile() {

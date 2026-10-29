@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,600;6..12,700;6..12,800;6..12,900&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap');
 
 :root {
   --bg: #07131f;
@@ -32,6 +32,9 @@
   --toast-blur: 2px;
   --toast-scale: 0.97;
   --toast-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --token-step-duration: 520ms;
+  --token-settle-duration: 90ms;
+  --token-travel-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * { box-sizing: border-box; }
@@ -523,7 +526,7 @@ body {
     radial-gradient(circle at 92% 78%, rgba(77, 214, 197, .24) 0 12%, transparent 12.5%),
     radial-gradient(rgba(29, 45, 68, .095) 1.2px, transparent 1.2px);
   background-size: auto, auto, 19px 19px;
-  font-family: Fredoka, "Noto Sans KR", system-ui, sans-serif;
+  font-family: "Nunito Sans", "Noto Sans KR", system-ui, sans-serif;
 }
 .ambient { opacity: .28; filter: blur(80px); }
 .ambient-a { background: #ff9688; }
@@ -617,7 +620,25 @@ body {
 .tile:hover { z-index: 9; border-color: var(--ink); background: color-mix(in srgb, var(--tile-color) 76%, white); transform: translate(-2px, -5px) rotate(1.2deg) scale(1.045); box-shadow: 6px 9px 0 var(--ink); filter: saturate(1.08); }
 .tile.is-current { animation: tile-current-play 1.05s ease-in-out infinite alternate; }
 @keyframes tile-current-play { to { transform: translateY(-5px) rotate(-1deg); box-shadow: 4px 9px 0 var(--ink), 0 0 0 4px white, 0 0 0 7px var(--coral); } }
-.tile-index { position: relative; z-index: 1; color: rgba(29,45,68,.66); font-size: 7px; font-weight: 900; letter-spacing: .09em; }
+.tile-index {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  padding: 1px 4px 2px;
+  border-radius: 5px;
+  color: rgba(29,45,68,.78);
+  background: rgba(255,255,255,.48);
+  font-family: "Nunito Sans", "Noto Sans KR", sans-serif;
+  font-size: clamp(7.5px, .65vw, 9px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: .015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .tile-flag {
   position: relative;
   z-index: 1;
@@ -630,11 +651,14 @@ body {
   border-radius: 50%;
   background: rgba(255,255,255,.72);
   box-shadow: 2px 2px 0 var(--ink);
-  font-family: "Noto Sans KR", sans-serif;
-  font-size: clamp(11px, 1.2vw, 17px);
+  font-family: "Nunito Sans", "Noto Sans KR", sans-serif;
+  font-size: clamp(12px, 1.2vw, 17px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -.055em;
 }
-.tile-name { position: relative; z-index: 1; margin-top: 6px; color: var(--ink); font-size: clamp(8px, .85vw, 12px); font-weight: 900; }
-.tile-meta { position: relative; z-index: 1; color: rgba(29,45,68,.66); font-size: clamp(6px, .56vw, 8px); }
+.tile-name { position: relative; z-index: 1; margin-top: 6px; color: var(--ink); font-family: "Nunito Sans", "Noto Sans KR", sans-serif; font-size: clamp(8px, .85vw, 12px); font-weight: 900; line-height: 1.08; letter-spacing: -.02em; }
+.tile-meta { position: relative; z-index: 1; color: rgba(29,45,68,.72); font-family: "Nunito Sans", "Noto Sans KR", sans-serif; font-size: clamp(6.5px, .58vw, 8.5px); font-weight: 800; line-height: 1.1; letter-spacing: -.01em; }
 .tile-price { padding: 2px 5px; border: 1.5px solid var(--ink); border-radius: 999px; color: var(--ink); background: white; }
 .tile-owner { z-index: 4; width: 11px; height: 15px; border: 2px solid var(--ink); border-radius: 50% 50% 50% 0; box-shadow: 1px 2px 0 var(--ink); transform: rotate(-45deg); }
 .tile.event-tile { border-top-color: var(--ink); background: var(--amber); }
@@ -679,6 +703,7 @@ body {
 }
 .token-stack { right: 5px; bottom: 3px; gap: 0; max-width: 50px; }
 @keyframes token-bob { to { transform: translateY(-7px) rotate(4deg) scale(1.08); } }
+.player-token.is-moving { z-index: 12; animation: none !important; will-change: transform; }
 
 .board-core {
   padding: clamp(20px, 3vw, 42px);
