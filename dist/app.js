@@ -73,13 +73,13 @@ function buildBoard() {
     el.style.gridRow = pos.row;
     el.style.gridColumn = pos.col;
     el.style.setProperty("--tile-color", REGION_COLORS[tile.region]);
-    el.title = tile.type === "city" ? `${tile.name}, ${tile.country} · 허브 설립비 ₡${tile.price}` : tile.name;
+    el.title = tile.type === "city" ? `${tile.name}, ${tile.country} · 허브 설립비 C ${tile.price}` : tile.name;
     const symbol = tile.type === "event"
       ? `<span class="tile-symbol">${escapeHtml(tile.flag)}</span>`
       : tile.type === "start"
         ? `<span class="tile-symbol tile-symbol-hq">HQ</span>`
         : "";
-    el.innerHTML = `<span class="tile-index"><b>${String(index).padStart(2, "0")}</b><em>${REGION_LABELS[tile.region]}</em></span><div class="tile-body">${symbol}<strong class="tile-name">${escapeHtml(tile.name)}</strong><span class="tile-country">${escapeHtml(tile.country)}</span></div><b class="tile-price">${tile.price ? `₡ ${tile.price}` : escapeHtml(tile.note || "DRAW")}</b><span class="token-stack"></span>`;
+    el.innerHTML = `<span class="tile-index"><b>${String(index).padStart(2, "0")}</b><em>${REGION_LABELS[tile.region]}</em></span><div class="tile-body">${symbol}<strong class="tile-name">${escapeHtml(tile.name)}</strong><span class="tile-country">${escapeHtml(tile.country)}</span></div><b class="tile-price">${tile.price ? `C ${tile.price}` : escapeHtml(tile.note || "DRAW")}</b><span class="token-stack"></span>`;
     board.appendChild(el);
   });
 }
@@ -145,7 +145,7 @@ function renderAll() {
   $("#currentRole").textContent = ROLES[player.id];
   $("#currentPosition").textContent = `현재 위치 · ${TILES[player.position].name}`;
   $("#turnChip").textContent = `TURN ${String(state.turn).padStart(2, "0")}`;
-  setDigits($("#currentCash"), `₡ ${player.cash.toLocaleString("ko-KR")}`);
+  setDigits($("#currentCash"), `C ${player.cash.toLocaleString("ko-KR")}`);
   setDigits($("#currentValue"), `${player.value} VP`);
   setDigits($("#currentGoal"), `${Math.max(0, 15 - player.value)} VP`);
   setDigits($("#currentHubs"), String(player.owned.length));
@@ -184,7 +184,7 @@ function renderPassport() {
   passport.setAttribute("aria-label", `${player.name}의 개인 현황. 보유 자금 ${player.cash}, 기업가치 ${player.value} VP, 보유 도시 ${player.owned.length}개`);
   passport.innerHTML = `
     <div class="passport-summary">
-      <div class="passport-money"><span>사용 가능 자금</span><strong>₡ ${player.cash.toLocaleString("ko-KR")}</strong></div>
+      <div class="passport-money"><span>사용 가능 자금</span><strong>C ${player.cash.toLocaleString("ko-KR")}</strong></div>
       <div class="passport-progress"><span>우승까지</span><strong>${remainingVp} VP</strong></div>
       <div class="passport-location"><span>현재 위치</span><strong>${escapeHtml(currentCity.name)}</strong></div>
     </div>
@@ -298,7 +298,7 @@ async function movePlayer(steps) {
     if (next === 0) {
       player.cash += 200;
       player.value += 1;
-      showToast("Walldorf 리포트", "세계 일주 완료: ₡200와 1 VP를 확보했습니다.", "↻", "#25e5d8");
+      showToast("Walldorf 리포트", "세계 일주 완료: C 200과 1 VP를 확보했습니다.", "↻", "#25e5d8");
       playTone(520, .07);
     }
     player.position = next;
@@ -344,30 +344,30 @@ function resolveTile() {
   if (tile.type === "event") return openEvent(tile);
   if (tile.type === "start") {
     player.cash += 100;
-    addLog(`${player.name} 팀이 Walldorf HQ 브리핑으로 ₡100을 받았습니다.`, "#25e5d8");
-    showToast("Headquarters briefing", "운영 예산 ₡100을 확보했습니다.", "W", "#25e5d8");
+    addLog(`${player.name} 팀이 Walldorf HQ 브리핑으로 C 100을 받았습니다.`, "#25e5d8");
+    showToast("Headquarters briefing", "운영 예산 C 100을 확보했습니다.", "W", "#25e5d8");
     return finishResolution();
   }
   const ownerId = state.owners[player.position];
   if (ownerId === undefined) return offerCity(tile, player.position);
   if (ownerId === player.id) {
     player.cash += 35;
-    addLog(`${player.name} 팀이 ${tile.name} 허브 운영으로 ₡35을 확보했습니다.`, player.color);
-    showToast(`${tile.name} hub online`, "현지 운영 수익 ₡35을 확보했습니다.", tile.flag, REGION_COLORS[tile.region]);
+    addLog(`${player.name} 팀이 ${tile.name} 허브 운영으로 C 35를 확보했습니다.`, player.color);
+    showToast(`${tile.name} hub online`, "현지 운영 수익 C 35를 확보했습니다.", tile.flag, REGION_COLORS[tile.region]);
     return finishResolution();
   }
   const owner = state.players[ownerId];
   const payment = Math.min(player.cash, tile.fee);
   player.cash -= payment;
   owner.cash += payment;
-  addLog(`${player.name} → ${owner.name}: ${tile.name} 네트워크 이용료 ₡${payment}`, owner.color);
-  showModal({ icon: tile.flag, eyebrow: `${tile.region} NETWORK FEE`, title: `${owner.name}의 ${tile.name} 허브`, body: `이미 구축된 글로벌 허브를 이용했습니다. ${owner.name} 팀에 네트워크 이용료를 지급합니다.`, color: owner.color, stats: [["이용료", `₡ ${payment}`], ["남은 예산", `₡ ${player.cash}`]], actions: [{ label: "확인하고 계속", primary: true, onClick: () => { closeGameModal(); if (player.cash <= 0) eliminatePlayer(player, owner); finishResolution(); } }] });
+  addLog(`${player.name} → ${owner.name}: ${tile.name} 네트워크 이용료 C ${payment}`, owner.color);
+  showModal({ icon: tile.flag, eyebrow: `${tile.region} NETWORK FEE`, title: `${owner.name}의 ${tile.name} 허브`, body: `이미 구축된 글로벌 허브를 이용했습니다. ${owner.name} 팀에 네트워크 이용료를 지급합니다.`, color: owner.color, stats: [["이용료", `C ${payment}`], ["남은 예산", `C ${player.cash}`]], actions: [{ label: "확인하고 계속", primary: true, onClick: () => { closeGameModal(); if (player.cash <= 0) eliminatePlayer(player, owner); finishResolution(); } }] });
 }
 
 function offerCity(tile, index) {
   const player = currentPlayer();
   const canBuy = player.cash >= tile.price;
-  showModal({ icon: tile.flag, eyebrow: `${tile.region} · NEW DESTINATION`, title: `${tile.name}에 허브를 설립할까요?`, body: `${tile.country}의 SAP 거점에 팀 허브를 설립하면 ${tile.vp} VP를 얻고, 다른 팀의 방문마다 ₡${tile.fee}의 네트워크 이용료를 받습니다.`, color: REGION_COLORS[tile.region], stats: [["설립 예산", `₡ ${tile.price}`], ["기업가치", `+${tile.vp} VP`], ["방문 수익", `₡ ${tile.fee}`], ["보유 예산", `₡ ${player.cash}`]], actions: [
+  showModal({ icon: tile.flag, eyebrow: `${tile.region} · NEW DESTINATION`, title: `${tile.name}에 허브를 설립할까요?`, body: `${tile.country}의 SAP 거점에 팀 허브를 설립하면 ${tile.vp} VP를 얻고, 다른 팀의 방문마다 C ${tile.fee}의 네트워크 이용료를 받습니다.`, color: REGION_COLORS[tile.region], stats: [["설립 예산", `C ${tile.price}`], ["기업가치", `+${tile.vp} VP`], ["방문 수익", `C ${tile.fee}`], ["보유 예산", `C ${player.cash}`]], actions: [
     { label: canBuy ? "허브 설립" : "예산 부족", primary: true, disabled: !canBuy, onClick: () => { player.cash -= tile.price; player.value += tile.vp; player.owned.push(index); state.owners[index] = player.id; addLog(`${player.name} 팀이 ${tile.name} 허브를 설립했습니다.`, player.color); closeGameModal(); showToast("New hub established", `${tile.name} · +${tile.vp} VP`, tile.flag, player.color); playTone(620, .1); finishResolution(); } },
     { label: "이번에는 통과", onClick: () => { addLog(`${player.name} 팀이 ${tile.name} 설립을 보류했습니다.`, "#708a9b"); closeGameModal(); finishResolution(); } }
   ] });
@@ -377,7 +377,7 @@ function openEvent(tile) {
   const player = currentPlayer();
   const event = EVENTS[Math.floor(Math.random() * EVENTS.length)];
   const appliedCash = Math.max(-player.cash, event.cash);
-  showModal({ icon: event.icon, eyebrow: `${tile.name.toUpperCase()} · EVENT CARD`, title: event.title, body: event.body, color: event.tone, stats: [["운영 예산", `${appliedCash >= 0 ? "+" : "−"}₡ ${Math.abs(appliedCash)}`], ["기업가치", `${event.vp >= 0 ? "+" : ""}${event.vp} VP`]], actions: [{ label: "카드 적용", primary: true, onClick: () => { player.cash += appliedCash; player.value = Math.max(0, player.value + event.vp); addLog(`${player.name}: ${event.title} (${appliedCash >= 0 ? "+" : ""}${appliedCash}, +${event.vp} VP)`, event.tone); closeGameModal(); showToast(event.title, `${appliedCash >= 0 ? "+" : ""}₡${appliedCash} · ${event.vp >= 0 ? "+" : ""}${event.vp} VP`, event.icon, event.tone); if (player.cash <= 0) eliminatePlayer(player); finishResolution(); } }] });
+  showModal({ icon: event.icon, eyebrow: `${tile.name.toUpperCase()} · EVENT CARD`, title: event.title, body: event.body, color: event.tone, stats: [["운영 예산", `${appliedCash >= 0 ? "+" : "−"}C ${Math.abs(appliedCash)}`], ["기업가치", `${event.vp >= 0 ? "+" : ""}${event.vp} VP`]], actions: [{ label: "카드 적용", primary: true, onClick: () => { player.cash += appliedCash; player.value = Math.max(0, player.value + event.vp); addLog(`${player.name}: ${event.title} (${appliedCash >= 0 ? "+" : ""}${appliedCash}, +${event.vp} VP)`, event.tone); closeGameModal(); showToast(event.title, `${appliedCash >= 0 ? "+" : ""}C ${Math.abs(appliedCash)} · ${event.vp >= 0 ? "+" : ""}${event.vp} VP`, event.icon, event.tone); if (player.cash <= 0) eliminatePlayer(player); finishResolution(); } }] });
 }
 
 function eliminatePlayer(player, creditor = null) {
@@ -421,7 +421,7 @@ function showVictory(winner) {
   state.phase = "gameover";
   saveGame();
   celebrate(winner.color);
-  showModal({ icon: "★", eyebrow: "GLOBAL NETWORK COMPLETE", title: `${winner.name} 팀이 세계를 연결했습니다!`, body: `${winner.owned.length}개 도시 허브와 ${winner.value} VP로 SAP CITY RUN의 최종 우승 팀이 되었습니다.`, color: winner.color, stats: [["최종 기업가치", `${winner.value} VP`], ["글로벌 허브", `${winner.owned.length} CITY`], ["남은 예산", `₡ ${winner.cash}`], ["완주 라운드", `${state.round}`]], actions: [{ label: "새 게임 시작", primary: true, onClick: () => { closeGameModal(); localStorage.removeItem("sap-city-run-v2"); location.reload(); } }] });
+  showModal({ icon: "★", eyebrow: "GLOBAL NETWORK COMPLETE", title: `${winner.name} 팀이 세계를 연결했습니다!`, body: `${winner.owned.length}개 도시 허브와 ${winner.value} VP로 SAP CITY RUN의 최종 우승 팀이 되었습니다.`, color: winner.color, stats: [["최종 기업가치", `${winner.value} VP`], ["글로벌 허브", `${winner.owned.length} CITY`], ["남은 예산", `C ${winner.cash}`], ["완주 라운드", `${state.round}`]], actions: [{ label: "새 게임 시작", primary: true, onClick: () => { closeGameModal(); localStorage.removeItem("sap-city-run-v2"); location.reload(); } }] });
   renderAll();
 }
 
