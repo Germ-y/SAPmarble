@@ -586,7 +586,7 @@ body {
   background: #ffcc55;
   box-shadow: var(--shadow);
   overflow: visible;
-  transform: rotate(-.35deg);
+  transform: none;
 }
 .board-wrap::before {
   inset: 7px;
