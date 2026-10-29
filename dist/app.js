@@ -302,7 +302,7 @@ function updateAction() {
   if (state.phase === "ready") { button.disabled = false; button.dataset.action = "roll"; label.textContent = "주사위 굴리기"; }
   else if (state.phase === "done") { button.disabled = false; button.dataset.action = "next"; label.textContent = "다음 팀 턴 시작"; }
   else if (state.phase === "gameover") { button.disabled = true; label.textContent = "게임 종료"; }
-  else { button.disabled = true; label.textContent = state.phase === "rolling" ? "글로벌 경로 계산 중…" : "도시 처리 중…"; }
+  else { button.disabled = true; label.textContent = state.phase === "rolling" ? "글로벌 경로 계산 중…" : state.phase === "transition" ? "다음 팀 준비 중…" : "도시 처리 중…"; }
 }
 
 function handlePrimaryAction(event) {
@@ -524,7 +524,7 @@ function checkWinner() {
   return active.length === 1 ? active[0] : null;
 }
 
-function nextTurn() {
+async function nextTurn() {
   if (!state || state.phase !== "done") return;
   const active = state.players.filter(player => player.active);
   if (active.length <= 1) return active[0] ? showVictory(active[0]) : null;
@@ -556,13 +556,51 @@ function nextTurn() {
       addLog(`${player.name} 팀이 Cloud Island에서 이번 차례를 쉽니다.`, "#ffc14e");
       continue;
     }
-    state.phase = "ready";
+    state.phase = "transition";
     $("#diceLabel").innerHTML = skipped.length ? `${skipped.join(", ")} 휴식<br />${player.name} 턴` : "주사위를 굴려<br />다음 SAP 도시로";
+    saveGame();
+    renderAll();
+    await showTurnTransition(player, skipped);
+    state.phase = "ready";
     saveGame();
     renderAll();
     showToast(`${player.name} turn`, skipped.length ? `${skipped.join(", ")} 팀의 휴식 턴을 건너뛰었습니다.` : "글로벌 경로가 준비되었습니다.", skipped.length ? "☁" : "→", player.color);
     return;
   }
+}
+
+async function showTurnTransition(player, skipped = []) {
+  const layer = $("#turnTransition");
+  const block = layer.querySelector(".t-stagger");
+  const turnCard = $(".turn-card");
+  const token = $(`#token-${player.id}`);
+  layer.style.setProperty("--turn-color", player.color);
+  $("#turnTransitionKicker").textContent = `ROUND ${state.round} · TURN ${String(state.turn).padStart(2, "0")}`;
+  $("#turnTransitionAvatar").textContent = player.id + 1;
+  $("#turnTransitionName").textContent = player.name;
+  $("#turnTransitionRole").textContent = skipped.length ? `${skipped.join(", ")} 휴식 처리 · YOUR TURN` : `${ROLES[player.id]} · READY TO ROLL`;
+  layer.classList.remove("is-open", "is-hiding");
+  block.classList.remove("is-hiding", "is-shown");
+  turnCard.classList.remove("is-turn-entering");
+  token?.classList.remove("is-turn-entering");
+  void block.offsetHeight;
+  layer.setAttribute("aria-hidden", "false");
+  layer.classList.add("is-open");
+  block.classList.add("is-shown");
+  turnCard.classList.add("is-turn-entering");
+  token?.classList.add("is-turn-entering");
+  playTone(440, .08);
+  window.setTimeout(() => playTone(660, .1), reducedMotion ? 40 : 180);
+  await wait(reducedMotion ? 320 : 1100);
+  block.classList.add("is-hiding");
+  block.classList.remove("is-shown");
+  layer.classList.add("is-hiding");
+  await wait(reducedMotion ? 20 : 200);
+  layer.classList.remove("is-open", "is-hiding");
+  block.classList.remove("is-hiding");
+  turnCard.classList.remove("is-turn-entering");
+  token?.classList.remove("is-turn-entering");
+  layer.setAttribute("aria-hidden", "true");
 }
 
 function showVictory(winner, byRoundLimit = false) {
@@ -667,6 +705,7 @@ function loadSaved() {
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (!parsed?.started || !Array.isArray(parsed.players) || parsed.players.length < 2 || parsed.version !== 3) return null;
+    if (parsed.phase === "transition") parsed.phase = "ready";
     if (["rolling", "resolving"].includes(parsed.phase)) {
       parsed.phase = "done";
       parsed.extraRoll = false;

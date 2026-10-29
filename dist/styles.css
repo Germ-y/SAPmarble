@@ -36,6 +36,11 @@
   --token-settle-duration: 90ms;
   --token-travel-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --die-roll-duration: 1250ms;
+  --stagger-dur: 500ms;
+  --stagger-distance: 12px;
+  --stagger-stagger: 40ms;
+  --stagger-blur: 3px;
+  --stagger-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * { box-sizing: border-box; }
@@ -1669,4 +1674,180 @@ body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
 
 @media (max-width: 470px) {
   .balance-row-four > .cash-balance:first-child { padding-inline: 12px; }
+}
+
+/* Lines start translated down + blurred + invisible; .is-shown
+   on the parent flips them to their resting state. The second
+   line's transition-delay holds it back by --stagger-stagger
+   so the eye lands on the headline first. */
+.t-stagger-line {
+  display: block;
+  opacity: 0;
+  transform: translateY(var(--stagger-distance));
+  filter: blur(var(--stagger-blur));
+  transition:
+    opacity   var(--stagger-dur) var(--stagger-ease),
+    transform var(--stagger-dur) var(--stagger-ease),
+    filter    var(--stagger-dur) var(--stagger-ease);
+  will-change: transform, opacity, filter;
+}
+.t-stagger-line--2 { transition-delay: var(--stagger-stagger); }
+
+.t-stagger.is-shown .t-stagger-line {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+/* Exit decouples from the stagger: same fade for every line,
+   no Y return, no blur — so the disappearance reads as a
+   single quiet fade instead of a reverse reveal. */
+.t-stagger.is-hiding .t-stagger-line {
+  opacity: 0;
+  transform: translateY(0);
+  filter: blur(0);
+  transition:
+    opacity 200ms ease,
+    transform 0s linear,
+    filter 0s linear;
+  transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-stagger-line { transition: none !important; }
+}
+
+/* Short, non-blocking turn hand-off inspired by board-game turn banners. */
+.turn-transition {
+  position: fixed;
+  z-index: 55;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 150ms ease, visibility 0s linear 150ms;
+}
+.turn-transition.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 120ms ease, visibility 0s linear 0s;
+}
+.turn-transition.is-hiding { opacity: 0; }
+.turn-transition::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--turn-color) 28%, transparent), transparent 42%);
+}
+.turn-transition-band {
+  position: absolute;
+  left: -8vw;
+  width: 116vw;
+  height: clamp(150px, 24vh, 210px);
+  overflow: hidden;
+  border-block: 4px solid var(--ink);
+  background:
+    linear-gradient(100deg, color-mix(in srgb, var(--turn-color) 88%, white), var(--turn-color) 56%, color-mix(in srgb, var(--turn-color) 72%, #142339));
+  box-shadow: 0 14px 0 rgba(30,42,64,.95), 0 34px 70px rgba(20,32,50,.28);
+  transform: translateX(-115%) skewX(-5deg);
+}
+.turn-transition.is-open .turn-transition-band { animation: turn-band-sweep 1100ms var(--stagger-ease) both; }
+.turn-transition-band i {
+  position: absolute;
+  top: -30%;
+  width: 7px;
+  height: 160%;
+  background: rgba(255,255,255,.7);
+  transform: rotate(19deg);
+}
+.turn-transition-band i:nth-child(1) { left: 14%; opacity: .45; }
+.turn-transition-band i:nth-child(2) { left: 78%; width: 38px; opacity: .16; }
+.turn-transition-band i:nth-child(3) { left: 84%; width: 9px; opacity: .38; }
+.turn-transition-card {
+  position: relative;
+  z-index: 1;
+  width: min(660px, calc(100vw - 36px));
+  padding: 24px 34px 26px;
+  color: var(--ink);
+  text-align: center;
+  text-shadow: 0 2px 0 rgba(255,255,255,.45);
+}
+.turn-transition-kicker {
+  font-size: clamp(10px, 1.2vw, 14px);
+  font-weight: 900;
+  letter-spacing: .16em;
+}
+.turn-transition-hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin: 10px 0 8px;
+}
+.turn-transition-hero strong {
+  overflow: hidden;
+  font-size: clamp(34px, 5.8vw, 72px);
+  font-weight: 900;
+  line-height: .98;
+  letter-spacing: -.055em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.turn-transition-avatar {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: clamp(52px, 6vw, 76px);
+  aspect-ratio: 1;
+  border: 4px solid var(--ink);
+  border-radius: 50%;
+  color: var(--turn-color);
+  background: white;
+  box-shadow: 5px 6px 0 var(--ink);
+  font-size: clamp(23px, 2.7vw, 36px);
+  font-weight: 900;
+  text-shadow: none;
+}
+.turn-transition-role {
+  font-size: clamp(10px, 1.25vw, 15px);
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+.t-stagger-line--3 { transition-delay: calc(var(--stagger-stagger) * 2); }
+.turn-card.is-turn-entering {
+  animation: turn-card-focus 1100ms var(--stagger-ease) both;
+}
+.player-token.is-active.is-turn-entering {
+  animation: turn-token-focus 1100ms var(--stagger-ease) both;
+}
+
+@keyframes turn-band-sweep {
+  0% { transform: translateX(-115%) skewX(-5deg); }
+  18% { transform: translateX(0) skewX(-5deg); }
+  82% { transform: translateX(0) skewX(-5deg); }
+  100% { transform: translateX(115%) skewX(-5deg); }
+}
+@keyframes turn-card-focus {
+  0%, 100% { box-shadow: 4px 5px 0 var(--ink); }
+  42% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--player-color) 52%, transparent), 8px 10px 0 var(--ink); }
+}
+@keyframes turn-token-focus {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+  45% { filter: drop-shadow(0 0 10px var(--player-color)); }
+}
+
+@media (max-width: 560px) {
+  .turn-transition-band { height: 150px; }
+  .turn-transition-card { padding-inline: 18px; }
+  .turn-transition-hero { gap: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .turn-transition,
+  .turn-transition-band,
+  .turn-card.is-turn-entering,
+  .player-token.is-active.is-turn-entering { animation: none !important; transition: none !important; }
+  .turn-transition.is-open .turn-transition-band { transform: translateX(0) skewX(-5deg); }
 }
