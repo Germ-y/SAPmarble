@@ -32,10 +32,10 @@
   --toast-blur: 2px;
   --toast-scale: 0.97;
   --toast-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --token-step-duration: 520ms;
+  --token-step-duration: 680ms;
   --token-settle-duration: 90ms;
   --token-travel-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --die-roll-duration: 1100ms;
+  --die-roll-duration: 1250ms;
 }
 
 * { box-sizing: border-box; }
@@ -1602,3 +1602,57 @@ body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
 
 /* The active pawn and coral outline already identify the current tile. */
 .tile.is-current::after { display: none; }
+
+/* Modoo-style double dice and property development states. */
+.dice-zone { grid-template-columns: minmax(0, 1fr) 132px; }
+.dice-pair { display: flex; align-items: center; justify-content: center; gap: 9px; transform-style: preserve-3d; }
+.dice-pair .die { width: 48px; height: 48px; }
+.dice-pair .die-face { padding: 6px; border-radius: 11px; }
+.dice-pair .face-1 { transform: translateZ(24px); }
+.dice-pair .face-6 { transform: rotateY(180deg) translateZ(24px); }
+.dice-pair .face-2 { transform: rotateY(90deg) translateZ(24px); }
+.dice-pair .face-5 { transform: rotateY(-90deg) translateZ(24px); }
+.dice-pair .face-3 { transform: rotateX(90deg) translateZ(24px); }
+.dice-pair .face-4 { transform: rotateX(-90deg) translateZ(24px); }
+.dice-pair .pip { width: 5.5px; height: 5.5px; }
+.die.die-alt.is-rolling { animation-name: die-tumble-alt; }
+.die-stage::after { width: 94px; }
+.die-stage::before { width: 108px; height: 66px; border-radius: 50%; }
+@keyframes die-tumble-alt {
+  0% { transform: translateY(0) rotateX(-14deg) rotateY(-28deg) rotateZ(0); }
+  22% { transform: translateY(-18px) rotateX(198deg) rotateY(-170deg) rotateZ(-55deg); }
+  52% { transform: translateY(-27px) rotateX(430deg) rotateY(-386deg) rotateZ(-118deg); }
+  78% { transform: translateY(-8px) rotateX(624deg) rotateY(-594deg) rotateZ(-176deg); }
+  100% { transform: translateY(0) rotateX(760deg) rotateY(-720deg) rotateZ(-224deg); }
+}
+.property-level {
+  position: absolute;
+  z-index: 7;
+  top: 22px;
+  right: 4px;
+  max-width: calc(100% - 8px);
+  padding: 2px 4px;
+  overflow: hidden;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--owner-color) 72%, white);
+  box-shadow: 1px 1px 0 var(--ink);
+  font-family: "Nunito Sans", "Noto Sans KR", sans-serif;
+  font-size: 5.5px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: .02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tile.is-rival-hub .property-level { opacity: .78; }
+
+@media (min-width: 1181px) {
+  .dice-zone { grid-template-columns: minmax(0, 1fr) 132px; }
+}
+
+@media (max-width: 470px) {
+  .dice-zone { grid-template-columns: minmax(0, 1fr) 112px; }
+  .dice-pair { gap: 7px; transform: scale(.9); }
+}

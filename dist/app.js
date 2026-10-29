@@ -2,32 +2,37 @@ const COLORS = ["#25e5d8", "#ff756d", "#ffc14e", "#927cff", "#56b7ff", "#c9ff57"
 const ROLES = ["Global Strategist", "Cloud Architect", "Market Explorer", "Innovation Lead", "People Champion", "Data Navigator"];
 const REGION_COLORS = { HQ: "#25e5d8", EUROPE: "#16a7ff", AMERICAS: "#ff756d", MEA: "#ffc14e", APJ: "#927cff", EVENT: "#ffc14e" };
 const REGION_LABELS = { HQ: "HQ", EUROPE: "EUR", AMERICAS: "AMER", MEA: "MEA", APJ: "APJ", EVENT: "EVENT" };
+const MAX_ROUNDS = 12;
+const STARTING_CASH = 2000;
+const STORAGE_KEY = "sap-city-run-v3";
+const BUILDING_LABELS = ["", "출장소", "오피스", "캠퍼스", "랜드마크"];
+const TOLL_MULTIPLIERS = [0, 1, 2, 4, 8];
 
 const TILES = [
   { type: "start", name: "Walldorf", country: "HQ · Germany", flag: "🇩🇪", region: "HQ", note: "GLOBAL HQ" },
-  { type: "city", name: "Berlin", country: "Germany", flag: "🇩🇪", region: "EUROPE", price: 170, fee: 48, vp: 1 },
-  { type: "city", name: "'s-Hertogenbosch", country: "Netherlands", flag: "🇳🇱", region: "EUROPE", price: 180, fee: 52, vp: 1 },
+  { type: "city", name: "Berlin", country: "Germany", flag: "🇩🇪", region: "EUROPE", group: "EU BLUE", price: 170, fee: 48 },
+  { type: "city", name: "'s-Hertogenbosch", country: "Netherlands", flag: "🇳🇱", region: "EUROPE", group: "EU BLUE", price: 180, fee: 52 },
   { type: "event", name: "Europe Exchange", country: "REGION EVENT", flag: "✦", region: "EVENT" },
-  { type: "city", name: "Paris", country: "France", flag: "🇫🇷", region: "EUROPE", price: 200, fee: 60, vp: 2 },
-  { type: "city", name: "London", country: "United Kingdom", flag: "🇬🇧", region: "EUROPE", price: 210, fee: 64, vp: 2 },
-  { type: "city", name: "Zurich", country: "Switzerland", flag: "🇨🇭", region: "EUROPE", price: 220, fee: 68, vp: 2 },
-  { type: "city", name: "Newtown Square", country: "Pennsylvania · USA", flag: "🇺🇸", region: "AMERICAS", price: 230, fee: 72, vp: 2 },
-  { type: "event", name: "Americas Summit", country: "REGION EVENT", flag: "✦", region: "EVENT" },
-  { type: "city", name: "New York", country: "USA", flag: "🇺🇸", region: "AMERICAS", price: 240, fee: 76, vp: 2 },
-  { type: "city", name: "Palo Alto", country: "California · USA", flag: "🇺🇸", region: "AMERICAS", price: 280, fee: 92, vp: 3 },
-  { type: "city", name: "Monterrey", country: "Mexico", flag: "🇲🇽", region: "AMERICAS", price: 210, fee: 64, vp: 2 },
-  { type: "city", name: "São Paulo", country: "Brazil", flag: "🇧🇷", region: "AMERICAS", price: 230, fee: 72, vp: 2 },
-  { type: "city", name: "São Leopoldo", country: "Brazil", flag: "🇧🇷", region: "AMERICAS", price: 200, fee: 60, vp: 2 },
+  { type: "city", name: "Paris", country: "France", flag: "🇫🇷", region: "EUROPE", group: "EU SKY", price: 200, fee: 60 },
+  { type: "city", name: "London", country: "United Kingdom", flag: "🇬🇧", region: "EUROPE", group: "EU SKY", price: 210, fee: 64 },
+  { type: "city", name: "Zurich", country: "Switzerland", flag: "🇨🇭", region: "EUROPE", group: "EU SKY", price: 220, fee: 68 },
+  { type: "city", name: "Newtown Square", country: "Pennsylvania · USA", flag: "🇺🇸", region: "AMERICAS", group: "AM CORAL", price: 230, fee: 72 },
+  { type: "island", name: "Cloud Island", country: "ONE TURN BREAK", flag: "☁", region: "EVENT" },
+  { type: "city", name: "New York", country: "USA", flag: "🇺🇸", region: "AMERICAS", group: "AM CORAL", price: 240, fee: 76 },
+  { type: "city", name: "Palo Alto", country: "California · USA", flag: "🇺🇸", region: "AMERICAS", group: "AM CORAL", price: 280, fee: 92 },
+  { type: "city", name: "Monterrey", country: "Mexico", flag: "🇲🇽", region: "AMERICAS", group: "AM ROSE", price: 210, fee: 64 },
+  { type: "city", name: "São Paulo", country: "Brazil", flag: "🇧🇷", region: "AMERICAS", group: "AM ROSE", price: 230, fee: 72 },
+  { type: "city", name: "São Leopoldo", country: "Brazil", flag: "🇧🇷", region: "AMERICAS", group: "AM ROSE", price: 200, fee: 60 },
   { type: "event", name: "Global Sync", country: "WORLD EVENT", flag: "✦", region: "EVENT" },
-  { type: "city", name: "Johannesburg", country: "South Africa", flag: "🇿🇦", region: "MEA", price: 210, fee: 66, vp: 2 },
-  { type: "city", name: "Dubai", country: "United Arab Emirates", flag: "🇦🇪", region: "MEA", price: 240, fee: 78, vp: 2 },
-  { type: "city", name: "Bengaluru", country: "India", flag: "🇮🇳", region: "APJ", price: 280, fee: 92, vp: 3 },
-  { type: "city", name: "Singapore", country: "Singapore", flag: "🇸🇬", region: "APJ", price: 260, fee: 84, vp: 3 },
-  { type: "city", name: "Shanghai", country: "China", flag: "🇨🇳", region: "APJ", price: 240, fee: 76, vp: 2 },
+  { type: "city", name: "Johannesburg", country: "South Africa", flag: "🇿🇦", region: "MEA", group: "MEA GOLD", price: 210, fee: 66 },
+  { type: "city", name: "Dubai", country: "United Arab Emirates", flag: "🇦🇪", region: "MEA", group: "MEA GOLD", price: 240, fee: 78 },
+  { type: "city", name: "Bengaluru", country: "India", flag: "🇮🇳", region: "APJ", group: "AP VIOLET", price: 280, fee: 92 },
+  { type: "city", name: "Singapore", country: "Singapore", flag: "🇸🇬", region: "APJ", group: "AP VIOLET", price: 260, fee: 84 },
+  { type: "city", name: "Shanghai", country: "China", flag: "🇨🇳", region: "APJ", group: "AP VIOLET", price: 240, fee: 76 },
   { type: "event", name: "APJ Connect", country: "REGION EVENT", flag: "✦", region: "EVENT" },
-  { type: "city", name: "Tokyo", country: "Japan", flag: "🇯🇵", region: "APJ", price: 250, fee: 82, vp: 2 },
-  { type: "city", name: "Seoul", country: "South Korea", flag: "🇰🇷", region: "APJ", price: 250, fee: 82, vp: 2 },
-  { type: "city", name: "Sydney", country: "Australia", flag: "🇦🇺", region: "APJ", price: 230, fee: 72, vp: 2 }
+  { type: "city", name: "Tokyo", country: "Japan", flag: "🇯🇵", region: "APJ", group: "AP LAVENDER", price: 250, fee: 82 },
+  { type: "city", name: "Seoul", country: "South Korea", flag: "🇰🇷", region: "APJ", group: "AP LAVENDER", price: 250, fee: 82 },
+  { type: "city", name: "Sydney", country: "Australia", flag: "🇦🇺", region: "APJ", group: "AP LAVENDER", price: 230, fee: 72 }
 ];
 
 const EVENTS = [
@@ -68,13 +73,13 @@ function buildBoard() {
   TILES.forEach((tile, index) => {
     const pos = tileGrid(index);
     const el = document.createElement("article");
-    el.className = `tile ${tile.type === "event" ? "event-tile" : ""} ${tile.type === "start" ? "start-tile" : ""}`;
+    el.className = `tile ${tile.type === "event" || tile.type === "island" ? "event-tile" : ""} ${tile.type === "start" ? "start-tile" : ""}`;
     el.dataset.index = index;
     el.style.gridRow = pos.row;
     el.style.gridColumn = pos.col;
     el.style.setProperty("--tile-color", REGION_COLORS[tile.region]);
-    el.title = tile.type === "city" ? `${tile.name}, ${tile.country} · 허브 설립비 C ${tile.price}` : tile.name;
-    const symbol = tile.type === "event"
+    el.title = tile.type === "city" ? `${tile.name}, ${tile.country} · 도시 인수 C ${tile.price}` : tile.name;
+    const symbol = tile.type === "event" || tile.type === "island"
       ? `<span class="tile-symbol">${escapeHtml(tile.flag)}</span>`
       : tile.type === "start"
         ? `<span class="tile-symbol tile-symbol-hq">HQ</span>`
@@ -98,7 +103,7 @@ function renderNameFields() {
 }
 
 function newGame(names) {
-  state = { version: 2, started: true, current: 0, round: 1, turn: 1, phase: "ready", owners: {}, players: names.map((name, index) => ({ id: index, name: name.trim() || `PLAYER ${index + 1}`, color: COLORS[index], cash: 1200, value: 0, position: 0, owned: [], active: true })), log: [] };
+  state = { version: 3, started: true, current: 0, round: 1, turn: 1, phase: "ready", properties: {}, extraRoll: false, players: names.map((name, index) => ({ id: index, name: name.trim() || `PLAYER ${index + 1}`, color: COLORS[index], cash: STARTING_CASH, brandValue: 0, position: 0, owned: [], laps: 0, doubleStreak: 0, skipTurns: 0, active: true })), log: [] };
   addLog(`${names.length}개 글로벌 팀이 Walldorf에서 출발합니다.`, "#25e5d8");
   saveGame();
   enterGame();
@@ -112,6 +117,36 @@ function enterGame() {
 }
 
 function currentPlayer() { return state.players[state.current]; }
+
+function propertyAt(index) { return state.properties?.[index]; }
+
+function groupTiles(group) {
+  return TILES.map((tile, index) => ({ tile, index })).filter(item => item.tile.group === group);
+}
+
+function hasMonopoly(ownerId, group) {
+  const targets = groupTiles(group);
+  return targets.length > 1 && targets.every(item => propertyAt(item.index)?.owner === ownerId);
+}
+
+function upgradeCost(tile, nextLevel) {
+  return Math.ceil(tile.price * ({ 2: .5, 3: .75, 4: 1 }[nextLevel] || 0) / 10) * 10;
+}
+
+function corporateValue(player) {
+  const invested = player.owned.reduce((sum, index) => sum + (propertyAt(index)?.invested || 0), 0);
+  return Math.max(0, player.cash) + invested + (player.brandValue || 0);
+}
+
+function currentToll(index) {
+  const tile = TILES[index];
+  const property = propertyAt(index);
+  if (!property) return 0;
+  const monopoly = hasMonopoly(property.owner, tile.group);
+  return Math.round(tile.fee * TOLL_MULTIPLIERS[property.level] * (monopoly ? 2 : 1));
+}
+
+function maxBuildLevel(player) { return Math.min(4, (player.laps || 0) + 1); }
 
 function setDigits(group, str) {
   const prev = group.textContent.replace(/\s+/g, "");
@@ -146,12 +181,12 @@ function renderAll() {
   $("#currentPosition").textContent = `현재 위치 · ${TILES[player.position].name}`;
   $("#turnChip").textContent = `TURN ${String(state.turn).padStart(2, "0")}`;
   setDigits($("#currentCash"), `C ${player.cash.toLocaleString("ko-KR")}`);
-  setDigits($("#currentValue"), `${player.value} VP`);
-  setDigits($("#currentGoal"), `${Math.max(0, 15 - player.value)} VP`);
+  setDigits($("#currentValue"), `C ${corporateValue(player).toLocaleString("ko-KR")}`);
+  setDigits($("#currentGoal"), `${Math.max(1, MAX_ROUNDS - state.round + 1)} R`);
   setDigits($("#currentHubs"), String(player.owned.length));
   setDigits($("#roundNumber"), String(state.round));
-  $("#moduleCount").textContent = Object.keys(state.owners).length;
-  $("#totalValue").textContent = `${state.players.reduce((sum, item) => sum + item.value, 0)} VP`;
+  $("#moduleCount").textContent = Object.keys(state.properties).length;
+  $("#totalValue").textContent = `C ${state.players.filter(item => item.active).reduce((sum, item) => sum + corporateValue(item), 0).toLocaleString("ko-KR")}`;
   $("#processStatus").textContent = state.phase === "rolling" ? "MOVING" : state.phase === "done" ? "SYNCED" : "READY";
   $("#systemHealth").textContent = `${Math.max(86, 99 - state.log.filter(item => item.color === "#ff756d").length * 0.7).toFixed(1)}%`;
   $("#turnEyebrow").textContent = state.phase === "done" ? "CITY SYNCED" : "NEXT DESTINATION";
@@ -173,33 +208,34 @@ function renderPassport() {
   const player = currentPlayer();
   const passport = $("#passportCard");
   const currentCity = TILES[player.position];
-  const remainingVp = Math.max(0, 15 - player.value);
   const cityCards = player.owned.length
     ? player.owned.map(tileIndex => {
         const tile = TILES[tileIndex];
-        return `<span class="passport-city" style="--city-color:${REGION_COLORS[tile.region]}"><i>${String(tileIndex).padStart(2, "0")}</i><b>${escapeHtml(tile.name)}</b><small>+${tile.vp} VP</small></span>`;
+        const property = propertyAt(tileIndex);
+        const monopoly = hasMonopoly(player.id, tile.group);
+        return `<span class="passport-city" style="--city-color:${REGION_COLORS[tile.region]}"><i>${property?.level === 4 ? "LM" : property?.level || 1}</i><b>${escapeHtml(tile.name)}</b><small>${escapeHtml(BUILDING_LABELS[property?.level || 1])} · C ${currentToll(tileIndex)}${monopoly ? " ×2" : ""}</small></span>`;
       }).join("")
-    : `<div class="passport-empty"><b>첫 허브를 기다리는 중</b><span>도시에 도착해 SAP 허브를 설립해 보세요.</span></div>`;
+    : `<div class="passport-empty"><b>첫 도시 인수를 기다리는 중</b><span>빈 SAP 도시에 도착해 출장소를 세워 보세요.</span></div>`;
   passport.style.setProperty("--player-color", player.color);
-  passport.setAttribute("aria-label", `${player.name}의 개인 현황. 보유 자금 ${player.cash}, 기업가치 ${player.value} VP, 보유 도시 ${player.owned.length}개`);
+  passport.setAttribute("aria-label", `${player.name}의 개인 현황. 보유 자금 ${player.cash}, 기업가치 ${corporateValue(player)}, 보유 도시 ${player.owned.length}개`);
   passport.innerHTML = `
     <div class="passport-summary">
       <div class="passport-money"><span>사용 가능 자금</span><strong>C ${player.cash.toLocaleString("ko-KR")}</strong></div>
-      <div class="passport-progress"><span>우승까지</span><strong>${remainingVp} VP</strong></div>
+      <div class="passport-progress"><span>기업가치</span><strong>C ${corporateValue(player).toLocaleString("ko-KR")}</strong></div>
       <div class="passport-location"><span>현재 위치</span><strong>${escapeHtml(currentCity.name)}</strong></div>
     </div>
-    <div class="passport-assets-head"><span>내가 인수한 SAP 도시</span><b>${player.owned.length} HUB${player.owned.length === 1 ? "" : "S"}</b></div>
+    <div class="passport-assets-head"><span>내가 인수한 SAP 도시</span><b>${player.owned.length} CITIES</b></div>
     <div class="passport-assets">${cityCards}</div>`;
   $("#passportStatus").textContent = player.active ? `현재 팀 · ${player.name}` : "여행 종료";
 }
 
 function renderOwnership() {
-  $$(".tile-owner").forEach(node => node.remove());
+  $$(".tile-owner, .property-level").forEach(node => node.remove());
   $$(".tile").forEach(tile => tile.classList.remove("is-my-hub", "is-rival-hub"));
   const activePlayer = currentPlayer();
-  Object.entries(state.owners).forEach(([tileIndex, ownerId]) => {
+  Object.entries(state.properties).forEach(([tileIndex, property]) => {
     const tile = $(`.tile[data-index="${tileIndex}"]`);
-    const owner = state.players[ownerId];
+    const owner = state.players[property.owner];
     if (!tile || !owner) return;
     const isMine = owner.id === activePlayer.id;
     tile.classList.add(isMine ? "is-my-hub" : "is-rival-hub");
@@ -207,8 +243,13 @@ function renderOwnership() {
     const marker = document.createElement("i");
     marker.className = "tile-owner";
     marker.style.setProperty("--owner-color", owner.color);
-    marker.title = isMine ? `내 허브 · ${tile.querySelector(".tile-name")?.textContent || ""}` : "다른 팀이 운영 중인 허브";
+    marker.title = isMine ? `내 도시 · ${tile.querySelector(".tile-name")?.textContent || ""}` : "다른 팀이 운영 중인 도시";
     tile.appendChild(marker);
+    const level = document.createElement("span");
+    level.className = "property-level";
+    level.textContent = property.level === 4 ? "LANDMARK" : `LV ${property.level}`;
+    level.title = BUILDING_LABELS[property.level];
+    tile.appendChild(level);
   });
 }
 
@@ -268,27 +309,51 @@ async function rollDice() {
   state.phase = "rolling";
   updateAction();
   $("#processStatus").textContent = "MOVING";
-  const result = Math.floor(Math.random() * 6) + 1;
-  const die = $("#die");
-  const dieStage = die.closest(".die-stage");
-  die.classList.remove("is-rolling");
+  const first = Math.floor(Math.random() * 6) + 1;
+  const second = Math.floor(Math.random() * 6) + 1;
+  const result = first + second;
+  const dice = [$("#die"), $("#die2")];
+  const dieStage = dice[0].closest(".die-stage");
+  dice.forEach(die => die.classList.remove("is-rolling"));
   dieStage.classList.remove("is-rolling-stage", "is-landed");
-  void die.offsetWidth;
-  die.classList.add("is-rolling");
+  void dice[0].offsetWidth;
+  dice.forEach(die => die.classList.add("is-rolling"));
   dieStage.classList.add("is-rolling-stage");
   playTone(220, .08);
   const rollDuration = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--die-roll-duration")) || 1100;
   await wait(reducedMotion ? 40 : rollDuration);
-  die.classList.remove("is-rolling");
+  dice.forEach(die => die.classList.remove("is-rolling"));
   dieStage.classList.remove("is-rolling-stage");
-  die.style.transform = ({ 1: "rotateX(0deg) rotateY(0deg)", 2: "rotateY(-90deg)", 3: "rotateX(-90deg)", 4: "rotateX(90deg)", 5: "rotateY(90deg)", 6: "rotateY(180deg)" })[result];
+  const faces = { 1: "rotateX(0deg) rotateY(0deg)", 2: "rotateY(-90deg)", 3: "rotateX(-90deg)", 4: "rotateX(90deg)", 5: "rotateY(90deg)", 6: "rotateY(180deg)" };
+  dice[0].style.transform = faces[first];
+  dice[1].style.transform = faces[second];
   void dieStage.offsetWidth;
   dieStage.classList.add("is-landed");
   window.setTimeout(() => dieStage.classList.remove("is-landed"), reducedMotion ? 50 : 420);
-  $("#diceLabel").innerHTML = `<span class="dice-result">${result}</span><span class="dice-result-copy">칸 이동합니다</span><br />글로벌 경로 동기화`;
-  addLog(`${currentPlayer().name} 팀이 ${result}을 굴렸습니다.`, currentPlayer().color);
+  const player = currentPlayer();
+  const isDouble = first === second;
+  player.doubleStreak = isDouble ? (player.doubleStreak || 0) + 1 : 0;
+  state.extraRoll = isDouble;
+  $("#diceLabel").innerHTML = `<span class="dice-result">${first}+${second}</span><span class="dice-result-copy"> · ${result}칸</span><br />${isDouble ? "DOUBLE! 한 번 더" : "글로벌 경로 동기화"}`;
+  addLog(`${player.name} 팀: ${first} + ${second} = ${result}${isDouble ? " · 더블" : ""}`, player.color);
+  if (player.doubleStreak >= 3) {
+    player.doubleStreak = 0;
+    state.extraRoll = false;
+    return sendToIsland(player, true);
+  }
   await movePlayer(result);
   resolveTile();
+}
+
+async function sendToIsland(player, fromTripleDouble = false) {
+  state.phase = "resolving";
+  state.extraRoll = false;
+  player.position = 8;
+  player.skipTurns = 1;
+  await moveToken(player, 8);
+  renderAll();
+  addLog(`${player.name} 팀이 Cloud Island로 이동했습니다.`, "#ffc14e");
+  showModal({ icon: "☁", eyebrow: fromTripleDouble ? "THREE DOUBLES" : "CLOUD ISLAND", title: "Cloud Island에서 잠시 재정비합니다", body: fromTripleDouble ? "3연속 더블로 Cloud Island에 도착했습니다. 다음 차례 한 번을 쉽니다." : "글로벌 클라우드 점검으로 다음 차례 한 번을 쉽니다.", color: "#ffc14e", stats: [["현재 위치", "Cloud Island"], ["휴식", "1 TURN"]], actions: [{ label: "확인", primary: true, onClick: () => { closeGameModal(); finishResolution(); } }] });
 }
 
 async function movePlayer(steps) {
@@ -297,8 +362,8 @@ async function movePlayer(steps) {
     const next = (player.position + 1) % TILES.length;
     if (next === 0) {
       player.cash += 200;
-      player.value += 1;
-      showToast("Walldorf 리포트", "세계 일주 완료: C 200과 1 VP를 확보했습니다.", "↻", "#25e5d8");
+      player.laps = (player.laps || 0) + 1;
+      showToast("Walldorf 리포트", `세계 일주 완료 · C 200 · ${BUILDING_LABELS[maxBuildLevel(player)]} 건설 해금`, "↻", "#25e5d8");
       playTone(520, .07);
     }
     player.position = next;
@@ -342,48 +407,86 @@ function resolveTile() {
   const tile = TILES[player.position];
   renderAll();
   if (tile.type === "event") return openEvent(tile);
+  if (tile.type === "island") return sendToIsland(player);
   if (tile.type === "start") {
     player.cash += 100;
     addLog(`${player.name} 팀이 Walldorf HQ 브리핑으로 C 100을 받았습니다.`, "#25e5d8");
     showToast("Headquarters briefing", "운영 예산 C 100을 확보했습니다.", "W", "#25e5d8");
     return finishResolution();
   }
-  const ownerId = state.owners[player.position];
-  if (ownerId === undefined) return offerCity(tile, player.position);
-  if (ownerId === player.id) {
-    player.cash += 35;
-    addLog(`${player.name} 팀이 ${tile.name} 허브 운영으로 C 35를 확보했습니다.`, player.color);
-    showToast(`${tile.name} hub online`, "현지 운영 수익 C 35를 확보했습니다.", tile.flag, REGION_COLORS[tile.region]);
-    return finishResolution();
-  }
-  const owner = state.players[ownerId];
-  const payment = Math.min(player.cash, tile.fee);
+  const property = propertyAt(player.position);
+  if (!property) return offerCity(tile, player.position);
+  if (property.owner === player.id) return offerUpgrade(tile, player.position);
+  const owner = state.players[property.owner];
+  const toll = currentToll(player.position);
+  const payment = Math.min(player.cash, toll);
   player.cash -= payment;
   owner.cash += payment;
   addLog(`${player.name} → ${owner.name}: ${tile.name} 네트워크 이용료 C ${payment}`, owner.color);
-  showModal({ icon: tile.flag, eyebrow: `${tile.region} NETWORK FEE`, title: `${owner.name}의 ${tile.name} 허브`, body: `이미 구축된 글로벌 허브를 이용했습니다. ${owner.name} 팀에 네트워크 이용료를 지급합니다.`, color: owner.color, stats: [["이용료", `C ${payment}`], ["남은 예산", `C ${player.cash}`]], actions: [{ label: "확인하고 계속", primary: true, onClick: () => { closeGameModal(); if (player.cash <= 0) eliminatePlayer(player, owner); finishResolution(); } }] });
+  const monopoly = hasMonopoly(owner.id, tile.group);
+  if (player.cash <= 0) {
+    return showModal({ icon: "!", eyebrow: "BANKRUPTCY", title: `${tile.name} 통행료로 파산했습니다`, body: `${owner.name} 팀에 보유 현금과 도시 자산이 이전됩니다.`, color: owner.color, stats: [["청구 통행료", `C ${toll}`], ["지급 금액", `C ${payment}`]], actions: [{ label: "자산 정리", primary: true, onClick: () => { closeGameModal(); eliminatePlayer(player, owner); finishResolution(); } }] });
+  }
+  const takeoverCost = Math.ceil(property.invested * 2 / 10) * 10;
+  const canTakeover = property.level < 4 && player.cash >= takeoverCost;
+  const actions = [];
+  if (property.level < 4) actions.push({ label: canTakeover ? `C ${takeoverCost}에 인수` : "인수 자금 부족", primary: true, disabled: !canTakeover, onClick: () => takeoverProperty(player, owner, player.position, takeoverCost) });
+  actions.push({ label: "통행료만 내기", primary: property.level === 4, onClick: () => { closeGameModal(); finishResolution(); } });
+  showModal({ icon: tile.flag, eyebrow: `${monopoly ? "COLOR MONOPOLY · " : ""}${BUILDING_LABELS[property.level]}`, title: `${owner.name}의 ${tile.name}`, body: `${BUILDING_LABELS[property.level]} 통행료를 지급했습니다.${property.level === 4 ? " 랜드마크는 인수할 수 없습니다." : " 원하면 현재 투자액의 2배로 도시를 인수할 수 있습니다."}`, color: owner.color, stats: [["통행료", `C ${toll}${monopoly ? " × 독점" : ""}`], ["남은 현금", `C ${player.cash}`], ["인수 가격", property.level === 4 ? "보호됨" : `C ${takeoverCost}`]], actions });
 }
 
 function offerCity(tile, index) {
   const player = currentPlayer();
   const canBuy = player.cash >= tile.price;
-  showModal({ icon: tile.flag, eyebrow: `${tile.region} · NEW DESTINATION`, title: `${tile.name}에 허브를 설립할까요?`, body: `${tile.country}의 SAP 거점에 팀 허브를 설립하면 ${tile.vp} VP를 얻고, 다른 팀의 방문마다 C ${tile.fee}의 네트워크 이용료를 받습니다.`, color: REGION_COLORS[tile.region], stats: [["설립 예산", `C ${tile.price}`], ["기업가치", `+${tile.vp} VP`], ["방문 수익", `C ${tile.fee}`], ["보유 예산", `C ${player.cash}`]], actions: [
-    { label: canBuy ? "허브 설립" : "예산 부족", primary: true, disabled: !canBuy, onClick: () => { player.cash -= tile.price; player.value += tile.vp; player.owned.push(index); state.owners[index] = player.id; addLog(`${player.name} 팀이 ${tile.name} 허브를 설립했습니다.`, player.color); closeGameModal(); showToast("New hub established", `${tile.name} · +${tile.vp} VP`, tile.flag, player.color); playTone(620, .1); finishResolution(); } },
-    { label: "이번에는 통과", onClick: () => { addLog(`${player.name} 팀이 ${tile.name} 설립을 보류했습니다.`, "#708a9b"); closeGameModal(); finishResolution(); } }
+  showModal({ icon: tile.flag, eyebrow: `${tile.group} · NEW CITY`, title: `${tile.name}를 인수할까요?`, body: `${tile.country}의 SAP 도시에 출장소를 세웁니다. 같은 컬러 도시를 모두 인수하면 통행료가 2배가 됩니다.`, color: REGION_COLORS[tile.region], stats: [["인수 가격", `C ${tile.price}`], ["첫 건물", "출장소"], ["기본 통행료", `C ${tile.fee}`], ["보유 현금", `C ${player.cash}`]], actions: [
+    { label: canBuy ? "도시 인수" : "현금 부족", primary: true, disabled: !canBuy, onClick: () => { player.cash -= tile.price; player.owned.push(index); state.properties[index] = { owner: player.id, level: 1, invested: tile.price }; addLog(`${player.name} 팀이 ${tile.name}를 인수하고 출장소를 세웠습니다.`, player.color); closeGameModal(); showToast("City acquired", `${tile.name} · 출장소 오픈`, tile.flag, player.color); playTone(620, .1); finishResolution(); } },
+    { label: "이번에는 통과", onClick: () => { addLog(`${player.name} 팀이 ${tile.name} 인수를 보류했습니다.`, "#708a9b"); closeGameModal(); finishResolution(); } }
   ] });
+}
+
+function offerUpgrade(tile, index) {
+  const player = currentPlayer();
+  const property = propertyAt(index);
+  const unlocked = maxBuildLevel(player);
+  if (property.level >= 4) {
+    showToast(`${tile.name} 랜드마크`, "최고 단계로 완성된 도시입니다.", "★", player.color);
+    return finishResolution();
+  }
+  const nextLevel = property.level + 1;
+  const cost = upgradeCost(tile, nextLevel);
+  const canBuild = nextLevel <= unlocked && player.cash >= cost;
+  showModal({ icon: tile.flag, eyebrow: "CITY DEVELOPMENT", title: `${tile.name}를 ${BUILDING_LABELS[nextLevel]}로 성장시킬까요?`, body: nextLevel > unlocked ? `세계 일주 ${nextLevel - 1}회를 완료하면 ${BUILDING_LABELS[nextLevel]} 건설이 해금됩니다.` : `건물을 성장시키면 통행료가 ${TOLL_MULTIPLIERS[nextLevel]}배로 올라갑니다.`, color: player.color, stats: [["현재 건물", BUILDING_LABELS[property.level]], ["다음 건물", BUILDING_LABELS[nextLevel]], ["건설 비용", `C ${cost}`], ["예상 통행료", `C ${Math.round(tile.fee * TOLL_MULTIPLIERS[nextLevel] * (hasMonopoly(player.id, tile.group) ? 2 : 1))}`]], actions: [
+    { label: canBuild ? `${BUILDING_LABELS[nextLevel]} 건설` : nextLevel > unlocked ? "아직 잠김" : "현금 부족", primary: true, disabled: !canBuild, onClick: () => { player.cash -= cost; property.level = nextLevel; property.invested += cost; addLog(`${player.name} 팀: ${tile.name} ${BUILDING_LABELS[nextLevel]} 완공`, player.color); closeGameModal(); showToast("Development complete", `${tile.name} · ${BUILDING_LABELS[nextLevel]}`, "↑", player.color); finishResolution(); } },
+    { label: "현재 상태 유지", onClick: () => { closeGameModal(); finishResolution(); } }
+  ] });
+}
+
+function takeoverProperty(buyer, seller, index, cost) {
+  const tile = TILES[index];
+  const property = propertyAt(index);
+  buyer.cash -= cost;
+  seller.cash += cost;
+  seller.owned = seller.owned.filter(item => item !== index);
+  if (!buyer.owned.includes(index)) buyer.owned.push(index);
+  property.owner = buyer.id;
+  closeGameModal();
+  addLog(`${buyer.name} 팀이 ${seller.name}의 ${tile.name}를 C ${cost}에 인수했습니다.`, buyer.color);
+  showToast("Takeover complete", `${tile.name}의 새 주인은 ${buyer.name}`, "↔", buyer.color);
+  finishResolution();
 }
 
 function openEvent(tile) {
   const player = currentPlayer();
   const event = EVENTS[Math.floor(Math.random() * EVENTS.length)];
   const appliedCash = Math.max(-player.cash, event.cash);
-  showModal({ icon: event.icon, eyebrow: `${tile.name.toUpperCase()} · EVENT CARD`, title: event.title, body: event.body, color: event.tone, stats: [["운영 예산", `${appliedCash >= 0 ? "+" : "−"}C ${Math.abs(appliedCash)}`], ["기업가치", `${event.vp >= 0 ? "+" : ""}${event.vp} VP`]], actions: [{ label: "카드 적용", primary: true, onClick: () => { player.cash += appliedCash; player.value = Math.max(0, player.value + event.vp); addLog(`${player.name}: ${event.title} (${appliedCash >= 0 ? "+" : ""}${appliedCash}, +${event.vp} VP)`, event.tone); closeGameModal(); showToast(event.title, `${appliedCash >= 0 ? "+" : ""}C ${Math.abs(appliedCash)} · ${event.vp >= 0 ? "+" : ""}${event.vp} VP`, event.icon, event.tone); if (player.cash <= 0) eliminatePlayer(player); finishResolution(); } }] });
+  const brandGain = (event.vp || 0) * 100;
+  showModal({ icon: event.icon, eyebrow: `${tile.name.toUpperCase()} · EVENT CARD`, title: event.title, body: event.body, color: event.tone, stats: [["운영 현금", `${appliedCash >= 0 ? "+" : "−"}C ${Math.abs(appliedCash)}`], ["브랜드 가치", `+C ${brandGain}`]], actions: [{ label: "카드 적용", primary: true, onClick: () => { player.cash += appliedCash; player.brandValue = Math.max(0, (player.brandValue || 0) + brandGain); addLog(`${player.name}: ${event.title} (${appliedCash >= 0 ? "+" : ""}${appliedCash}, 브랜드 +${brandGain})`, event.tone); closeGameModal(); showToast(event.title, `${appliedCash >= 0 ? "+" : ""}C ${Math.abs(appliedCash)} · 브랜드 +C ${brandGain}`, event.icon, event.tone); if (player.cash <= 0) eliminatePlayer(player); finishResolution(); } }] });
 }
 
 function eliminatePlayer(player, creditor = null) {
   player.active = false;
   player.cash = 0;
-  player.owned.forEach(tileIndex => { if (creditor) { state.owners[tileIndex] = creditor.id; creditor.owned.push(tileIndex); } else delete state.owners[tileIndex]; });
+  player.owned.forEach(tileIndex => { if (creditor) { state.properties[tileIndex].owner = creditor.id; if (!creditor.owned.includes(tileIndex)) creditor.owned.push(tileIndex); } else delete state.properties[tileIndex]; });
   player.owned = [];
   addLog(`${player.name} 팀의 글로벌 투어가 종료되었습니다.`, "#ff756d");
 }
@@ -391,14 +494,20 @@ function eliminatePlayer(player, creditor = null) {
 function finishResolution() {
   const winner = checkWinner();
   if (winner) return showVictory(winner);
+  if (state.extraRoll) {
+    state.extraRoll = false;
+    state.phase = "ready";
+    saveGame();
+    renderAll();
+    $("#diceLabel").innerHTML = "DOUBLE!<br />한 번 더 굴리세요";
+    return showToast("Double bonus", `${currentPlayer().name} 팀이 한 번 더 굴립니다.`, "×2", currentPlayer().color);
+  }
   state.phase = "done";
   saveGame();
   renderAll();
 }
 
 function checkWinner() {
-  const valueWinner = state.players.find(player => player.active && player.value >= 15);
-  if (valueWinner) return valueWinner;
   const active = state.players.filter(player => player.active);
   return active.length === 1 ? active[0] : null;
 }
@@ -407,9 +516,26 @@ function nextTurn() {
   if (!state || state.phase !== "done") return;
   let next = state.current;
   do next = (next + 1) % state.players.length; while (!state.players[next].active);
-  if (next <= state.current) state.round++;
+  if (next <= state.current) {
+    if (state.round >= MAX_ROUNDS) {
+      const winner = state.players.filter(player => player.active).sort((a, b) => corporateValue(b) - corporateValue(a))[0];
+      return showVictory(winner, true);
+    }
+    state.round++;
+  }
   state.current = next;
   state.turn++;
+  const player = currentPlayer();
+  if (player.skipTurns > 0) {
+    player.skipTurns--;
+    player.doubleStreak = 0;
+    state.phase = "done";
+    addLog(`${player.name} 팀이 Cloud Island에서 이번 차례를 쉽니다.`, "#ffc14e");
+    $("#diceLabel").innerHTML = "CLOUD ISLAND<br />이번 차례 휴식";
+    saveGame();
+    renderAll();
+    return showToast("Cloud Island", `${player.name} 팀은 이번 차례를 쉽니다.`, "☁", "#ffc14e");
+  }
   state.phase = "ready";
   $("#diceLabel").innerHTML = "주사위를 굴려<br />다음 SAP 도시로";
   saveGame();
@@ -417,11 +543,12 @@ function nextTurn() {
   showToast(`${currentPlayer().name} turn`, "글로벌 경로가 준비되었습니다.", "→", currentPlayer().color);
 }
 
-function showVictory(winner) {
+function showVictory(winner, byRoundLimit = false) {
+  state.current = winner.id;
   state.phase = "gameover";
   saveGame();
   celebrate(winner.color);
-  showModal({ icon: "★", eyebrow: "GLOBAL NETWORK COMPLETE", title: `${winner.name} 팀이 세계를 연결했습니다!`, body: `${winner.owned.length}개 도시 허브와 ${winner.value} VP로 SAP CITY RUN의 최종 우승 팀이 되었습니다.`, color: winner.color, stats: [["최종 기업가치", `${winner.value} VP`], ["글로벌 허브", `${winner.owned.length} CITY`], ["남은 예산", `C ${winner.cash}`], ["완주 라운드", `${state.round}`]], actions: [{ label: "새 게임 시작", primary: true, onClick: () => { closeGameModal(); localStorage.removeItem("sap-city-run-v2"); location.reload(); } }] });
+  showModal({ icon: "★", eyebrow: byRoundLimit ? "12 ROUNDS COMPLETE" : "LAST COMPANY STANDING", title: `${winner.name} 팀이 최고의 기업가치를 만들었습니다!`, body: `${winner.owned.length}개 SAP 도시와 C ${corporateValue(winner).toLocaleString("ko-KR")}의 기업가치로 최종 우승했습니다.`, color: winner.color, stats: [["최종 기업가치", `C ${corporateValue(winner).toLocaleString("ko-KR")}`], ["인수 도시", `${winner.owned.length} CITY`], ["남은 현금", `C ${winner.cash}`], ["완주 라운드", `${state.round}`]], actions: [{ label: "새 게임 시작", primary: true, onClick: () => { closeGameModal(); localStorage.removeItem(STORAGE_KEY); location.reload(); } }] });
   renderAll();
 }
 
@@ -513,11 +640,11 @@ function celebrate(baseColor) {
   }
 }
 
-function saveGame() { if (state) localStorage.setItem("sap-city-run-v2", JSON.stringify(state)); }
+function saveGame() { if (state) localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 function loadSaved() {
   try {
-    const parsed = JSON.parse(localStorage.getItem("sap-city-run-v2"));
-    if (!parsed?.started || !Array.isArray(parsed.players) || parsed.players.length < 2 || parsed.version !== 2) return null;
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!parsed?.started || !Array.isArray(parsed.players) || parsed.players.length < 2 || parsed.version !== 3) return null;
     return parsed;
   } catch { return null; }
 }
@@ -550,7 +677,7 @@ function bindEvents() {
   $("#rulesClose").addEventListener("click", closeRules);
   $("#rulesConfirm").addEventListener("click", closeRules);
   $("#soundButton").addEventListener("click", () => { soundOn = !soundOn; $("#soundButton").setAttribute("aria-pressed", String(soundOn)); $("#soundButton").setAttribute("aria-label", soundOn ? "효과음 끄기" : "효과음 켜기"); if (soundOn) playTone(480, .08); });
-  $("#resetButton").addEventListener("click", () => { if (!state || confirm("현재 게임을 초기화하고 새로 시작할까요?")) { localStorage.removeItem("sap-city-run-v2"); location.reload(); } });
+  $("#resetButton").addEventListener("click", () => { if (!state || confirm("현재 게임을 초기화하고 새로 시작할까요?")) { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem("sap-city-run-v2"); location.reload(); } });
   document.addEventListener("keydown", event => {
     if (event.code === "Space" && state && !$(".modal-layer.is-open") && !$("#setupLayer").classList.contains("is-visible")) { event.preventDefault(); $("#actionButton").click(); }
     if (event.key === "Escape") { if ($("#rulesLayer").classList.contains("is-open")) closeRules(); else if ($("#modalLayer").classList.contains("is-open")) modalCloseHandler?.(); }

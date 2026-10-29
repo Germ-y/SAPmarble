@@ -57,9 +57,9 @@
                 <p id="turnHint">팀을 구성하고 첫 번째 Go-Live를 준비하세요.</p>
               </div>
               <div class="core-metrics">
-                <div><span>설립 허브</span><b id="moduleCount">0</b></div>
-                <div><span>총 기업가치</span><b id="totalValue">0</b></div>
-                <div><span>여행 상태</span><b id="processStatus">READY</b></div>
+                <div><span>인수 도시</span><b id="moduleCount">0</b></div>
+                <div><span>전체 기업가치</span><b id="totalValue">C 0</b></div>
+                <div><span>투자 상태</span><b id="processStatus">READY</b></div>
               </div>
             </div>
           </div>
@@ -86,8 +86,8 @@
           </div>
           <div class="balance-row balance-row-four">
             <div class="balance-card cash-balance"><span>내 운영 자금</span><strong id="currentCash" class="t-digit-group">C 1,200</strong></div>
-            <div class="balance-card"><span>기업가치</span><strong id="currentValue" class="t-digit-group">0 VP</strong></div>
-            <div class="balance-card"><span>우승까지</span><strong id="currentGoal" class="t-digit-group">15 VP</strong></div>
+            <div class="balance-card"><span>기업가치</span><strong id="currentValue" class="t-digit-group">C 2,000</strong></div>
+            <div class="balance-card"><span>남은 라운드</span><strong id="currentGoal" class="t-digit-group">12 R</strong></div>
             <div class="balance-card"><span>보유 도시</span><strong id="currentHubs" class="t-digit-group">0</strong></div>
           </div>
         </section>
@@ -98,6 +98,7 @@
             <strong id="diceLabel">주사위를 굴려<br />다음 SAP 도시로</strong>
           </div>
           <div class="die-stage" aria-hidden="true">
+            <div class="dice-pair">
             <div id="die" class="die">
               <div class="die-face face-1"><i class="pip p5"></i></div>
               <div class="die-face face-2"><i class="pip p1"></i><i class="pip p9"></i></div>
@@ -105,6 +106,15 @@
               <div class="die-face face-4"><i class="pip p1"></i><i class="pip p3"></i><i class="pip p7"></i><i class="pip p9"></i></div>
               <div class="die-face face-5"><i class="pip p1"></i><i class="pip p3"></i><i class="pip p5"></i><i class="pip p7"></i><i class="pip p9"></i></div>
               <div class="die-face face-6"><i class="pip p1"></i><i class="pip p3"></i><i class="pip p4"></i><i class="pip p6"></i><i class="pip p7"></i><i class="pip p9"></i></div>
+            </div>
+            <div id="die2" class="die die-alt">
+              <div class="die-face face-1"><i class="pip p5"></i></div>
+              <div class="die-face face-2"><i class="pip p1"></i><i class="pip p9"></i></div>
+              <div class="die-face face-3"><i class="pip p1"></i><i class="pip p5"></i><i class="pip p9"></i></div>
+              <div class="die-face face-4"><i class="pip p1"></i><i class="pip p3"></i><i class="pip p7"></i><i class="pip p9"></i></div>
+              <div class="die-face face-5"><i class="pip p1"></i><i class="pip p3"></i><i class="pip p5"></i><i class="pip p7"></i><i class="pip p9"></i></div>
+              <div class="die-face face-6"><i class="pip p1"></i><i class="pip p3"></i><i class="pip p4"></i><i class="pip p6"></i><i class="pip p7"></i><i class="pip p9"></i></div>
+            </div>
             </div>
           </div>
           <button id="actionButton" class="primary-action" type="button" disabled>
@@ -132,8 +142,8 @@
         <div class="setup-grid">
           <div class="setup-copy">
             <p class="eyebrow">GLOBAL OFFICE TOUR / 25–40 MIN</p>
-            <h2>주사위 하나로<br /><span>SAP 세계여행</span>을<br />떠나볼까요?</h2>
-            <p>전 세계 SAP 도시를 돌며 알록달록한 허브를 세우세요. 친구의 도시에 착륙하면 여행비를 내고, 15 VP를 먼저 모으면 우승!</p>
+            <h2>쌍주사위로<br /><span>SAP 세계시장</span>을<br />경영해 볼까요?</h2>
+            <p>SAP 도시를 인수하고 출장소부터 랜드마크까지 성장시키세요. 독점 통행료로 경쟁하고, 12라운드 뒤 가장 높은 기업가치를 만든 팀이 우승합니다.</p>
             <div class="feature-pills"><span>2–6 PLAYERS</span><span>24 TILES</span><span>AUTO SAVE</span></div>
           </div>
           <form id="setupForm" class="setup-form">
@@ -169,12 +179,12 @@
       <section class="rules-modal t-modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
         <button id="rulesClose" class="modal-close" type="button" aria-label="닫기">×</button>
         <p class="modal-eyebrow">QUICK GUIDE</p>
-        <h2 id="rulesTitle">15 VP를 먼저 확보하세요.</h2>
+        <h2 id="rulesTitle">도시를 키워 최고의 기업가치를 만드세요.</h2>
         <div class="rules-grid">
-          <article><b>01</b><strong>ROLL</strong><p>주사위를 굴려 업무 프로세스를 따라 이동합니다.</p></article>
-          <article><b>02</b><strong>ESTABLISH</strong><p>SAP 오피스 도시에 허브를 세우면 VP와 네트워크 이용료를 얻습니다.</p></article>
-          <article><b>03</b><strong>RESPOND</strong><p>감사·장애·변경요청 카드는 예산과 가치를 바꿉니다.</p></article>
-          <article><b>04</b><strong>WIN</strong><p>15 VP에 도달하거나 마지막 운영 팀이 되면 승리합니다.</p></article>
+          <article><b>01</b><strong>DOUBLE DICE</strong><p>주사위 두 개의 합만큼 이동합니다. 더블이면 한 번 더, 3연속 더블이면 Cloud Island로 이동합니다.</p></article>
+          <article><b>02</b><strong>BUILD</strong><p>빈 도시를 인수하고 출장소·오피스·캠퍼스·랜드마크 순서로 성장시킵니다.</p></article>
+          <article><b>03</b><strong>MONOPOLY</strong><p>같은 컬러의 도시를 모두 인수하면 통행료가 2배입니다. 랜드마크는 다른 팀이 인수할 수 없습니다.</p></article>
+          <article><b>04</b><strong>VALUE</strong><p>파산하지 않고 12라운드 뒤 현금·투자·브랜드를 합친 기업가치가 가장 높으면 승리합니다.</p></article>
         </div>
         <button id="rulesConfirm" class="start-button" type="button"><span>확인했어요</span><svg viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></button>
         <p class="legal-note">학습용 비공식 시뮬레이션이며 SAP SE와 제휴 또는 보증 관계가 없습니다. SAP 및 SAP 로고는 SAP SE의 상표입니다.</p>
