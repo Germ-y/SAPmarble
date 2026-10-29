@@ -1512,3 +1512,90 @@ body {
   background: rgba(189,238,232,.7);
 }
 .start-tile .player-token.is-active { width: 22px; height: 28px; }
+
+/* One type system for Korean, Latin labels and animated figures. */
+body,
+body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
+  font-family: "Noto Sans KR", system-ui, sans-serif;
+}
+.sap-logo,
+.sap-logo-small,
+.sap-logo-mini { font-family: Arial, Helvetica, sans-serif; }
+.t-digit-group {
+  flex-wrap: nowrap;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.t-digit { flex: 0 0 auto; line-height: 1; white-space: pre; }
+.t-digit[data-space] { width: .28em; }
+.operator-row strong {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+}
+.operator-row span { line-height: 1.25; }
+.operator-row .current-position {
+  margin-top: 4px;
+  font-size: 8px;
+  line-height: 1.25;
+  letter-spacing: -.015em;
+}
+.balance-row-four span,
+.passport-summary span {
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -.015em;
+}
+.balance-row-four strong,
+.passport-summary strong {
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+}
+.balance-row-four > .balance-card:not(.cash-balance) strong { gap: 0; }
+.dice-copy strong {
+  line-height: 1.42;
+  letter-spacing: -.025em;
+}
+.dice-result {
+  display: inline-block;
+  min-width: .78em;
+  margin-right: .12em;
+  color: #15a89d;
+  font-size: 1.08em;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+  vertical-align: baseline;
+}
+.dice-result-copy { display: inline; }
+.keyboard-hint {
+  margin: 0;
+  line-height: 1.35;
+  letter-spacing: -.02em;
+}
+.passport-section .panel-heading b {
+  color: var(--coral);
+  font-size: 7px;
+  line-height: 1.2;
+  letter-spacing: .02em;
+}
+.passport-summary > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.passport-summary strong { margin-top: 4px; }
+.log-item {
+  align-items: center;
+  line-height: 1.5;
+  letter-spacing: -.012em;
+}
+.log-dot { margin-top: 0; }
+.log-item time {
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}

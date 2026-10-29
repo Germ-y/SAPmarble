@@ -124,7 +124,8 @@ function setDigits(group, str) {
   chars.forEach((ch, i) => {
     const span = document.createElement("span");
     span.className = "t-digit";
-    span.textContent = ch;
+    span.textContent = ch === " " ? "\u00a0" : ch;
+    if (ch === " ") span.dataset.space = "";
     if (i < same) span.dataset.same = "";
     if (i === chars.length - 2) span.dataset.stagger = "1";
     else if (i === chars.length - 1) span.dataset.stagger = "2";
@@ -189,7 +190,7 @@ function renderPassport() {
     </div>
     <div class="passport-assets-head"><span>내가 인수한 SAP 도시</span><b>${player.owned.length} HUB${player.owned.length === 1 ? "" : "S"}</b></div>
     <div class="passport-assets">${cityCards}</div>`;
-  $("#passportStatus").textContent = player.active ? `${player.name} ONLY` : "TRIP ENDED";
+  $("#passportStatus").textContent = player.active ? `현재 팀 · ${player.name}` : "여행 종료";
 }
 
 function renderOwnership() {
@@ -284,7 +285,7 @@ async function rollDice() {
   void dieStage.offsetWidth;
   dieStage.classList.add("is-landed");
   window.setTimeout(() => dieStage.classList.remove("is-landed"), reducedMotion ? 50 : 420);
-  $("#diceLabel").innerHTML = `<span style="color:var(--cyan)">${result}</span>칸 이동합니다<br />글로벌 경로 동기화`;
+  $("#diceLabel").innerHTML = `<span class="dice-result">${result}</span><span class="dice-result-copy">칸 이동합니다</span><br />글로벌 경로 동기화`;
   addLog(`${currentPlayer().name} 팀이 ${result}을 굴렸습니다.`, currentPlayer().color);
   await movePlayer(result);
   resolveTile();
