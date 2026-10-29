@@ -297,11 +297,23 @@ function addLog(text, color = "#16a7ff") {
 function updateAction() {
   const button = $("#actionButton");
   const label = $("#actionText");
+  button.dataset.action = "none";
   if (!state) { button.disabled = true; label.textContent = "게임 시작하기"; return; }
-  if (state.phase === "ready") { button.disabled = false; label.textContent = "주사위 굴리기"; }
-  else if (state.phase === "done") { button.disabled = false; label.textContent = "다음 팀으로"; }
+  if (state.phase === "ready") { button.disabled = false; button.dataset.action = "roll"; label.textContent = "주사위 굴리기"; }
+  else if (state.phase === "done") { button.disabled = false; button.dataset.action = "next"; label.textContent = "다음 팀 턴 시작"; }
   else if (state.phase === "gameover") { button.disabled = true; label.textContent = "게임 종료"; }
   else { button.disabled = true; label.textContent = state.phase === "rolling" ? "글로벌 경로 계산 중…" : "도시 처리 중…"; }
+}
+
+function handlePrimaryAction(event) {
+  event?.preventDefault();
+  const button = $("#actionButton");
+  if (!state || button.disabled) return;
+  if (button.dataset.action === "roll") return rollDice();
+  if (button.dataset.action === "next") {
+    button.disabled = true;
+    nextTurn();
+  }
 }
 
 async function rollDice() {
@@ -514,33 +526,43 @@ function checkWinner() {
 
 function nextTurn() {
   if (!state || state.phase !== "done") return;
-  let next = state.current;
-  do next = (next + 1) % state.players.length; while (!state.players[next].active);
-  if (next <= state.current) {
-    if (state.round >= MAX_ROUNDS) {
-      const winner = state.players.filter(player => player.active).sort((a, b) => corporateValue(b) - corporateValue(a))[0];
-      return showVictory(winner, true);
+  const active = state.players.filter(player => player.active);
+  if (active.length <= 1) return active[0] ? showVictory(active[0]) : null;
+  const skipped = [];
+  let cursor = state.current;
+  const maxHops = state.players.length * 2;
+  for (let hop = 0; hop < maxHops; hop++) {
+    let next = -1;
+    for (let offset = 1; offset <= state.players.length; offset++) {
+      const candidate = (cursor + offset) % state.players.length;
+      if (state.players[candidate].active) { next = candidate; break; }
     }
-    state.round++;
-  }
-  state.current = next;
-  state.turn++;
-  const player = currentPlayer();
-  if (player.skipTurns > 0) {
-    player.skipTurns--;
-    player.doubleStreak = 0;
-    state.phase = "done";
-    addLog(`${player.name} 팀이 Cloud Island에서 이번 차례를 쉽니다.`, "#ffc14e");
-    $("#diceLabel").innerHTML = "CLOUD ISLAND<br />이번 차례 휴식";
+    if (next < 0) return;
+    if (next <= cursor) {
+      if (state.round >= MAX_ROUNDS) {
+        const winner = active.sort((a, b) => corporateValue(b) - corporateValue(a))[0];
+        return showVictory(winner, true);
+      }
+      state.round++;
+    }
+    state.current = next;
+    state.turn++;
+    cursor = next;
+    const player = currentPlayer();
+    if (player.skipTurns > 0) {
+      player.skipTurns--;
+      player.doubleStreak = 0;
+      skipped.push(player.name);
+      addLog(`${player.name} 팀이 Cloud Island에서 이번 차례를 쉽니다.`, "#ffc14e");
+      continue;
+    }
+    state.phase = "ready";
+    $("#diceLabel").innerHTML = skipped.length ? `${skipped.join(", ")} 휴식<br />${player.name} 턴` : "주사위를 굴려<br />다음 SAP 도시로";
     saveGame();
     renderAll();
-    return showToast("Cloud Island", `${player.name} 팀은 이번 차례를 쉽니다.`, "☁", "#ffc14e");
+    showToast(`${player.name} turn`, skipped.length ? `${skipped.join(", ")} 팀의 휴식 턴을 건너뛰었습니다.` : "글로벌 경로가 준비되었습니다.", skipped.length ? "☁" : "→", player.color);
+    return;
   }
-  state.phase = "ready";
-  $("#diceLabel").innerHTML = "주사위를 굴려<br />다음 SAP 도시로";
-  saveGame();
-  renderAll();
-  showToast(`${currentPlayer().name} turn`, "글로벌 경로가 준비되었습니다.", "→", currentPlayer().color);
 }
 
 function showVictory(winner, byRoundLimit = false) {
@@ -671,7 +693,7 @@ function bindEvents() {
   }));
   $("#setupForm").addEventListener("submit", event => { event.preventDefault(); newGame($$("#nameFields input").map((input, index) => input.value.trim() || `PLAYER ${index + 1}`)); });
   $("#resumeButton").addEventListener("click", () => { state = loadSaved(); if (state) enterGame(); });
-  $("#actionButton").addEventListener("click", () => state?.phase === "ready" ? rollDice() : state?.phase === "done" ? nextTurn() : null);
+  $("#actionButton").addEventListener("click", handlePrimaryAction);
   $("#modalClose").addEventListener("click", () => modalCloseHandler?.());
   $("#rulesButton").addEventListener("click", openRules);
   $("#rulesClose").addEventListener("click", closeRules);
