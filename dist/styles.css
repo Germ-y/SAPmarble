@@ -1599,3 +1599,6 @@ body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
   line-height: 1.5;
   font-variant-numeric: tabular-nums;
 }
+
+/* The active pawn and coral outline already identify the current tile. */
+.tile.is-current::after { display: none; }
