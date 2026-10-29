@@ -220,7 +220,15 @@ function renderTokens() {
     token.className = "player-token";
     token.dataset.player = player.id;
     token.style.setProperty("--token-color", player.color);
-    token.textContent = player.id + 1;
+    token.setAttribute("role", "img");
+    token.setAttribute("aria-label", `${player.name} 팀 말`);
+    token.innerHTML = `
+      <svg viewBox="0 0 32 40" aria-hidden="true" focusable="false">
+        <circle class="pawn-part pawn-head" cx="16" cy="8" r="6"></circle>
+        <path class="pawn-part pawn-body" d="M12.5 14h7c0 4.3 1.8 8.2 5.2 12H7.3c3.4-3.8 5.2-7.7 5.2-12Z"></path>
+        <path class="pawn-part pawn-base" d="M7 25.5h18a5 5 0 0 1 0 10H7a5 5 0 0 1 0-10Z"></path>
+      </svg>
+      <b class="token-number" aria-hidden="true">${player.id + 1}</b>`;
     token.title = player.name;
     $(`.tile[data-index="${player.position}"] .token-stack`).appendChild(token);
   });

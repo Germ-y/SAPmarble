@@ -1420,3 +1420,74 @@ body {
   #gameModal.t-modal.is-open { transform: translateY(0) scale(1); }
   #gameModal.t-modal.is-closing { transform: translateY(22px) scale(.98); }
 }
+
+/* Clear board-game pawns replace the old bag-like CSS tokens. */
+.tile.is-current::after { top: -8px; right: -7px; }
+.player-token,
+.start-tile .player-token {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 23px;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink);
+}
+.player-token::before,
+.player-token::after,
+.start-tile .player-token::before,
+.start-tile .player-token::after { display: none; }
+.player-token svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.player-token .pawn-part {
+  fill: var(--token-color);
+  stroke: var(--ink);
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.token-number {
+  position: absolute;
+  right: -4px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  color: var(--ink);
+  background: white;
+  box-shadow: 1px 1px 0 var(--ink);
+  font-size: 5.5px;
+  font-weight: 900;
+  line-height: 1;
+}
+.player-token.is-active,
+.start-tile .player-token.is-active {
+  width: 25px;
+  height: 32px;
+  filter: drop-shadow(0 0 2px white) drop-shadow(0 0 5px white) drop-shadow(2px 3px 0 rgba(29,45,68,.7));
+}
+.player-token.is-active .token-number { width: 12px; height: 12px; font-size: 6.5px; }
+.start-tile .token-stack {
+  right: auto;
+  bottom: 3px;
+  left: 50%;
+  display: grid;
+  grid-template-columns: repeat(3, 20px);
+  justify-items: center;
+  align-items: end;
+  width: 60px;
+  max-width: calc(100% - 8px);
+  gap: 0;
+  transform: translateX(-50%);
+}
+.start-tile .player-token:not(.is-active) { width: 13px; height: 17px; }
+.start-tile .player-token:not(.is-active) .token-number { right: -3px; bottom: -2px; width: 8px; height: 8px; font-size: 4.5px; }
