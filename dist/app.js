@@ -74,7 +74,7 @@ function buildBoard() {
     el.style.gridColumn = pos.col;
     el.style.setProperty("--tile-color", REGION_COLORS[tile.region]);
     el.title = tile.type === "city" ? `${tile.name}, ${tile.country} · 허브 설립비 ₡${tile.price}` : tile.name;
-    el.innerHTML = `<span class="tile-index">${String(index).padStart(2, "0")} · ${REGION_LABELS[tile.region]}</span><span class="tile-flag">${tile.flag}</span><strong class="tile-name">${tile.name}</strong><span class="tile-meta"><span>${tile.country}</span><b class="tile-price">${tile.price ? `₡${tile.price}` : tile.note || "DRAW"}</b></span><span class="token-stack"></span>`;
+    el.innerHTML = `<span class="tile-index"><b>${String(index).padStart(2, "0")}</b><em>${REGION_LABELS[tile.region]}</em></span><span class="tile-flag">${tile.flag}</span><strong class="tile-name">${tile.name}</strong><span class="tile-meta"><span>${tile.country}</span><b class="tile-price">${tile.price ? `₡${tile.price}` : tile.note || "DRAW"}</b></span><span class="token-stack"></span>`;
     board.appendChild(el);
   });
 }

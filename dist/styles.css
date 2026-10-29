@@ -598,6 +598,10 @@ body {
 .board { gap: 9px; min-height: 650px; }
 .tile {
   padding: 9px 9px 8px;
+  display: grid;
+  grid-template-rows: auto minmax(24px, 1fr) auto auto;
+  align-items: center;
+  row-gap: 2px;
   border: 2px solid var(--ink);
   border-top: 2px solid var(--ink);
   border-radius: 14px;
@@ -608,14 +612,7 @@ body {
   transition: transform 180ms cubic-bezier(.22,1,.36,1), box-shadow 180ms cubic-bezier(.22,1,.36,1), filter 180ms ease;
 }
 .tile::after {
-  content: "";
-  position: absolute;
-  right: -10px;
-  bottom: -12px;
-  width: 38px;
-  height: 38px;
-  border: 2px solid rgba(29,45,68,.12);
-  border-radius: 50%;
+  display: none;
 }
 .tile:hover { z-index: 9; border-color: var(--ink); background: color-mix(in srgb, var(--tile-color) 76%, white); transform: translate(-2px, -5px) rotate(1.2deg) scale(1.045); box-shadow: 6px 9px 0 var(--ink); filter: saturate(1.08); }
 .tile.is-current { animation: tile-current-play 1.05s ease-in-out infinite alternate; }
@@ -623,46 +620,48 @@ body {
 .tile-index {
   position: relative;
   z-index: 1;
-  display: block;
-  width: max-content;
-  max-width: 100%;
-  padding: 1px 4px 2px;
-  border-radius: 5px;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 0;
   color: rgba(29,45,68,.78);
-  background: rgba(255,255,255,.48);
+  background: transparent;
   font-family: "Nunito Sans", "Noto Sans KR", sans-serif;
-  font-size: clamp(7.5px, .65vw, 9px);
   font-weight: 900;
-  line-height: 1.05;
-  letter-spacing: .015em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
+.tile-index b { display: grid; place-items: center; min-width: 19px; height: 14px; padding-inline: 3px; border-radius: 5px; color: var(--ink); background: rgba(255,255,255,.78); font-size: clamp(7px, .6vw, 8.5px); }
+.tile-index em { min-width: 0; overflow: hidden; color: rgba(29,45,68,.72); font-size: clamp(6.5px, .55vw, 8px); font-style: normal; letter-spacing: .075em; text-overflow: ellipsis; white-space: nowrap; }
 .tile-flag {
   position: relative;
   z-index: 1;
   display: grid;
   place-items: center;
-  width: clamp(26px, 2.5vw, 38px);
-  height: clamp(26px, 2.5vw, 38px);
-  margin-top: auto;
-  border: 2px solid var(--ink);
-  border-radius: 50%;
-  background: rgba(255,255,255,.72);
-  box-shadow: 2px 2px 0 var(--ink);
+  width: clamp(28px, 2.5vw, 34px);
+  height: clamp(21px, 1.85vw, 26px);
+  margin: 0;
+  align-self: center;
+  justify-self: start;
+  border: 1.5px solid rgba(29,45,68,.82);
+  border-radius: 8px;
+  background: rgba(255,255,255,.78);
+  box-shadow: 1px 1px 0 rgba(29,45,68,.75);
   font-family: "Nunito Sans", "Noto Sans KR", sans-serif;
-  font-size: clamp(12px, 1.2vw, 17px);
+  font-size: clamp(10px, 1vw, 14px);
   font-weight: 900;
   line-height: 1;
   letter-spacing: -.055em;
 }
-.tile-name { position: relative; z-index: 1; margin-top: 6px; color: var(--ink); font-family: "Nunito Sans", "Noto Sans KR", sans-serif; font-size: clamp(8px, .85vw, 12px); font-weight: 900; line-height: 1.08; letter-spacing: -.02em; }
-.tile-meta { position: relative; z-index: 1; color: rgba(29,45,68,.72); font-family: "Nunito Sans", "Noto Sans KR", sans-serif; font-size: clamp(6.5px, .58vw, 8.5px); font-weight: 800; line-height: 1.1; letter-spacing: -.01em; }
-.tile-price { padding: 2px 5px; border: 1.5px solid var(--ink); border-radius: 999px; color: var(--ink); background: white; }
+.tile-name { position: relative; z-index: 1; display: block; min-width: 0; margin: 0; overflow: hidden; color: var(--ink); font-family: "Nunito Sans", "Noto Sans KR", sans-serif; font-size: clamp(8px, .85vw, 12px); font-weight: 900; line-height: 1.05; letter-spacing: -.025em; text-overflow: ellipsis; white-space: nowrap; }
+.tile-meta { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px; min-width: 0; margin: 0; color: rgba(29,45,68,.7); font-family: "Nunito Sans", "Noto Sans KR", sans-serif; font-size: clamp(6.5px, .58vw, 8.5px); font-weight: 800; line-height: 1; letter-spacing: -.015em; }
+.tile-price { padding: 2px 5px; border: 1.5px solid rgba(29,45,68,.86); border-radius: 999px; color: var(--ink); background: rgba(255,255,255,.88); font-variant-numeric: tabular-nums; }
 .tile-owner { z-index: 4; width: 11px; height: 15px; border: 2px solid var(--ink); border-radius: 50% 50% 50% 0; box-shadow: 1px 2px 0 var(--ink); transform: rotate(-45deg); }
 .tile.event-tile { border-top-color: var(--ink); background: var(--amber); }
-.tile.event-tile .tile-flag { border-radius: 10px; color: var(--ink); background: white; transform: rotate(-5deg); }
+.tile.event-tile .tile-flag { border-radius: 8px; color: var(--ink); background: white; font-size: clamp(11px, 1.1vw, 15px); transform: rotate(-3deg); }
 .tile.start-tile { background: var(--cyan); }
 
 .player-token {
@@ -960,9 +959,9 @@ body {
 .team-stat.hubs { text-align: center; background: #eaf7d7; }
 .player-card.is-out .team-stat { background: #edf0f2; }
 
-.tile-meta { position: relative; min-height: 14px; padding-right: 39px; }
+.tile-meta { min-height: 14px; padding: 0; }
 .tile-meta > span { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tile-price { position: absolute; right: 0; bottom: 0; white-space: nowrap; }
+.tile-price { position: static; white-space: nowrap; }
 .start-tile .tile-meta { display: none; }
 .start-tile .token-stack {
   right: auto;
@@ -998,15 +997,18 @@ body {
   .board {
     width: clamp(500px, calc(100vh - 145px), 680px);
     min-height: 0;
-    gap: clamp(5px, .8vh, 8px);
+    gap: clamp(6px, .85vh, 8px);
     grid-template-columns: repeat(7, minmax(0, 1fr));
     grid-template-rows: repeat(7, minmax(0, 1fr));
   }
   .board-legend { gap: 12px; padding-top: 7px; }
-  .tile { padding: clamp(5px, .8vh, 8px); border-radius: 11px; box-shadow: 2px 3px 0 var(--ink); }
-  .tile-flag { width: clamp(22px, 3.4vh, 34px); height: clamp(22px, 3.4vh, 34px); }
-  .tile-name { margin-top: 3px; font-size: clamp(7px, 1.15vh, 11px); }
+  .tile { grid-template-rows: auto minmax(19px, 1fr) auto auto; row-gap: clamp(1px, .3vh, 2px); padding: clamp(5px, .72vh, 7px); border-radius: 11px; box-shadow: 2px 3px 0 var(--ink); }
+  .tile-index b { min-width: 17px; height: 12px; font-size: clamp(6.5px, .88vh, 8px); }
+  .tile-index em { font-size: clamp(6px, .76vh, 7.3px); }
+  .tile-flag { width: clamp(24px, 3.3vh, 30px); height: clamp(18px, 2.5vh, 23px); font-size: clamp(9px, 1.45vh, 13px); }
+  .tile-name { margin: 0; font-size: clamp(7px, 1.1vh, 10px); }
   .tile-meta { font-size: clamp(5.8px, .82vh, 7.5px); }
+  .tile-price { padding: 1px 4px; }
   .board-core { padding: clamp(16px, 2.6vh, 28px); }
   .world-scene { width: min(330px, 78%); margin-block: 3px 1px; }
   .core-metrics { margin-top: clamp(8px, 1.4vh, 14px); }
