@@ -30,6 +30,12 @@
     </header>
 
     <main id="game" class="game-shell">
+      <aside class="valuation-section valuation-float" aria-labelledby="valuationTitle">
+        <div class="panel-heading"><span id="valuationTitle">ENTERPRISE VALUE</span><b>LIVE RANKING</b></div>
+        <ol id="valueRanking" class="value-ranking" aria-live="polite"></ol>
+        <p class="value-formula"><b>현금 20%</b> + (도시·건물 + 브랜드) × 1.1<sup>완주</sup></p>
+      </aside>
+
       <section class="board-section" aria-label="게임 보드">
         <div class="section-heading intro-reveal">
           <div>
@@ -90,12 +96,6 @@
             <div class="balance-card"><span>남은 라운드</span><strong id="currentGoal" class="t-digit-group">12 R</strong></div>
             <div class="balance-card"><span>보유 도시</span><strong id="currentHubs" class="t-digit-group">0</strong></div>
           </div>
-        </section>
-
-        <section class="valuation-section" aria-labelledby="valuationTitle">
-          <div class="panel-heading"><span id="valuationTitle">ENTERPRISE VALUE</span><b>LIVE RANKING</b></div>
-          <ol id="valueRanking" class="value-ranking" aria-live="polite"></ol>
-          <p class="value-formula"><b>현금 20%</b> + (도시·건물 + 브랜드) × 1.1<sup>완주</sup></p>
         </section>
 
         <section class="dice-zone">
@@ -187,10 +187,14 @@
 
     <div id="modalLayer" class="modal-layer arrival-layer" aria-hidden="true">
       <section id="gameModal" class="game-modal t-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-        <button id="modalClose" class="modal-close" type="button" aria-label="닫기">×</button>
-        <div id="modalIcon" class="modal-icon">↗</div>
-        <p id="modalEyebrow" class="modal-eyebrow">PROCESS UPDATE</p>
-        <h2 id="modalTitle">프로세스 업데이트</h2>
+        <div class="modal-heading">
+          <div id="modalIcon" class="modal-icon">↗</div>
+          <div class="modal-heading-copy">
+            <p id="modalEyebrow" class="modal-eyebrow">PROCESS UPDATE</p>
+            <h2 id="modalTitle">프로세스 업데이트</h2>
+          </div>
+          <button id="modalClose" class="modal-close" type="button" aria-label="닫기">×</button>
+        </div>
         <p id="modalBody" class="modal-body"></p>
         <div id="modalStats" class="modal-stats"></div>
         <div id="modalActions" class="modal-actions"></div>
