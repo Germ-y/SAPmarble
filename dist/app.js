@@ -5,7 +5,7 @@ const REGION_LABELS = { HQ: "HQ", EUROPE: "EUR", AMERICAS: "AMER", MEA: "MEA", A
 const MAX_ROUNDS = 12;
 const STARTING_CASH = 2000;
 const STORAGE_KEY = "sap-city-run-v3";
-const BUILDING_LABELS = ["", "SAP", "SAP Labs", "SAP 랜드마크"];
+const BUILDING_LABELS = ["", "SAP", "SAP Labs", "랜드마크"];
 const TOLL_MULTIPLIERS = [0, 1, 3, 7];
 const LANDMARK_LEVEL = BUILDING_LABELS.length - 1;
 
@@ -460,7 +460,7 @@ function resolveTile() {
   const actions = [];
   if (property.level < LANDMARK_LEVEL) actions.push({ label: canTakeover ? `C ${takeoverCost}에 인수` : "인수 자금 부족", primary: true, disabled: !canTakeover, onClick: () => takeoverProperty(player, owner, player.position, takeoverCost) });
   actions.push({ label: "통행료만 내기", primary: property.level === LANDMARK_LEVEL, onClick: () => { closeGameModal(); finishResolution(); } });
-  showModal({ icon: tile.flag, eyebrow: `${monopoly ? "COLOR MONOPOLY · " : ""}${BUILDING_LABELS[property.level]}`, title: `${owner.name}의 ${tile.name}`, body: `${BUILDING_LABELS[property.level]} 통행료를 지급했습니다.${property.level === LANDMARK_LEVEL ? " SAP 랜드마크는 인수할 수 없습니다." : " 원하면 현재 투자액의 2배로 도시를 인수할 수 있습니다."}`, color: owner.color, stats: [["통행료", `C ${toll}${monopoly ? " × 독점" : ""}`], ["남은 현금", `C ${player.cash}`], ["인수 가격", property.level === LANDMARK_LEVEL ? "보호됨" : `C ${takeoverCost}`]], actions });
+  showModal({ icon: tile.flag, eyebrow: `${monopoly ? "COLOR MONOPOLY · " : ""}${BUILDING_LABELS[property.level]}`, title: `${owner.name}의 ${tile.name}`, body: `${BUILDING_LABELS[property.level]} 통행료를 지급했습니다.${property.level === LANDMARK_LEVEL ? " 랜드마크는 인수할 수 없습니다." : " 원하면 현재 투자액의 2배로 도시를 인수할 수 있습니다."}`, color: owner.color, stats: [["통행료", `C ${toll}${monopoly ? " × 독점" : ""}`], ["남은 현금", `C ${player.cash}`], ["인수 가격", property.level === LANDMARK_LEVEL ? "보호됨" : `C ${takeoverCost}`]], actions });
 }
 
 function offerCity(tile, index) {
@@ -477,7 +477,7 @@ function offerCity(tile, index) {
   actions.push({ label: canBuy ? `SAP만 · C ${tile.price}` : "현금 부족", primary: packageLevel === 1, disabled: !canBuy, onClick: () => buyCityWithBuilding(player, tile, index, 1) });
   actions.push({ label: "이번에는 통과", onClick: () => { addLog(`${player.name} 팀이 ${tile.name} 인수를 보류했습니다.`, "#708a9b"); closeGameModal(); finishResolution(); } });
   const packageCost = acquisitionCost(tile, unlocked);
-  showModal({ icon: tile.flag, eyebrow: `${tile.group} · NEW CITY`, title: `${tile.name}에 건설할까요?`, body: `${tile.country} SAP 도시를 인수하고 건물을 세웁니다. SAP와 SAP Labs를 모두 건설하면 SAP 랜드마크를 완성할 수 있습니다.`, color: REGION_COLORS[tile.region], stats: [["SAP 포함", `C ${tile.price}`], ["현재 해금", BUILDING_LABELS[unlocked]], ["최대 패키지", `C ${packageCost}`], ["보유 현금", `C ${player.cash}`]], actions });
+  showModal({ icon: tile.flag, eyebrow: `${tile.group} · NEW CITY`, title: `${tile.name}에 건설할까요?`, body: `${tile.country} SAP 도시를 인수하고 건물을 세웁니다. SAP와 SAP Labs를 모두 건설하면 랜드마크를 완성할 수 있습니다.`, color: REGION_COLORS[tile.region], stats: [["SAP 포함", `C ${tile.price}`], ["현재 해금", BUILDING_LABELS[unlocked]], ["최대 패키지", `C ${packageCost}`], ["보유 현금", `C ${player.cash}`]], actions });
 }
 
 function buyCityWithBuilding(player, tile, index, level) {
@@ -498,7 +498,7 @@ function offerUpgrade(tile, index) {
   const property = propertyAt(index);
   const unlocked = maxBuildLevel(player);
   if (property.level >= LANDMARK_LEVEL) {
-    showToast(`${tile.name} SAP 랜드마크`, "SAP와 SAP Labs를 모두 갖춘 최고 단계 도시입니다.", "★", player.color);
+    showToast(`${tile.name} 랜드마크`, "SAP와 SAP Labs를 모두 갖춘 최고 단계 도시입니다.", "★", player.color);
     return finishResolution();
   }
   const nextLevel = property.level + 1;
