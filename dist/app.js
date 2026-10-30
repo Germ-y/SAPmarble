@@ -131,7 +131,7 @@ function hasMonopoly(ownerId, group) {
 }
 
 function upgradeCost(tile, nextLevel) {
-  return Math.ceil(tile.price * ({ 2: .75, 3: 1.25 }[nextLevel] || 0) / 10) * 10;
+  return Math.ceil(tile.price * ({ 2: 1.5, 3: 2.5 }[nextLevel] || 0) / 10) * 10;
 }
 
 function acquisitionCost(tile, level) {
@@ -472,9 +472,9 @@ function offerCity(tile, index) {
   const actions = [];
   if (packageLevel > 1) {
     const packageCost = acquisitionCost(tile, packageLevel);
-    actions.push({ label: `${BUILDING_LABELS[packageLevel]}까지 · C ${packageCost}`, primary: true, onClick: () => buyCityWithBuilding(player, tile, index, packageLevel) });
+    actions.push({ label: `${BUILDING_LABELS[packageLevel]} 건설 · C ${packageCost}`, primary: true, onClick: () => buyCityWithBuilding(player, tile, index, packageLevel) });
   }
-  actions.push({ label: canBuy ? `SAP만 · C ${tile.price}` : "현금 부족", primary: packageLevel === 1, disabled: !canBuy, onClick: () => buyCityWithBuilding(player, tile, index, 1) });
+  actions.push({ label: canBuy ? `SAP 건설 · C ${tile.price}` : "현금 부족", primary: packageLevel === 1, disabled: !canBuy, onClick: () => buyCityWithBuilding(player, tile, index, 1) });
   actions.push({ label: "이번에는 통과", onClick: () => { addLog(`${player.name} 팀이 ${tile.name} 인수를 보류했습니다.`, "#708a9b"); closeGameModal(); finishResolution(); } });
   const packageCost = acquisitionCost(tile, unlocked);
   showModal({ icon: tile.flag, eyebrow: `${tile.group} · NEW CITY`, title: `${tile.name}에 건설할까요?`, body: `${tile.country} SAP 도시를 인수하고 건물을 세웁니다. SAP와 SAP Labs를 모두 건설하면 랜드마크를 완성할 수 있습니다.`, color: REGION_COLORS[tile.region], stats: [["SAP 포함", `C ${tile.price}`], ["현재 해금", BUILDING_LABELS[unlocked]], ["최대 패키지", `C ${packageCost}`], ["보유 현금", `C ${player.cash}`]], actions });
