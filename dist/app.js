@@ -176,7 +176,7 @@ function corporateValue(player) {
 function currentToll(index) {
   const tile = TILES[index];
   const property = propertyAt(index);
-  if (!property) return 0;
+  if (!property || property.construction) return 0;
   const monopoly = hasMonopoly(property.owner, tile.group);
   return Math.round(tile.fee * TOLL_MULTIPLIERS[Math.min(property.level, LANDMARK_LEVEL)] * (monopoly ? 2 : 1));
 }

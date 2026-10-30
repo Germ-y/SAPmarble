@@ -6,6 +6,7 @@
   "description": "A local multiplayer SAP city board game",
   "scripts": {
     "start": "node server.mjs",
-    "dev": "node server.mjs"
+    "dev": "node server.mjs",
+    "test": "node --test tests/game-logic.test.mjs"
   }
 }
