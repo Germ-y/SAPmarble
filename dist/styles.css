@@ -2152,3 +2152,31 @@ body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
   #modalLayer .modal-heading .modal-close { font-size: 26px; }
   #modalLayer .modal-heading h2 { font-size: clamp(21px, 7vw, 30px); }
 }
+
+/* Keep process entries inside their card; only the list itself scrolls. */
+.activity-section {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+.activity-section .panel-heading { flex: 0 0 auto; }
+.activity-log {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overscroll-behavior: contain;
+}
+.log-item > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 1181px) {
+  .activity-log {
+    max-height: 100%;
+    padding: 1px 2px 3px 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
