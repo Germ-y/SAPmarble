@@ -9,6 +9,10 @@ const BUILDING_LABELS = ["", "SAP", "SAP Labs", "랜드마크"];
 const TOLL_MULTIPLIERS = [0, 1, 3, 7];
 const LANDMARK_LEVEL = BUILDING_LABELS.length - 1;
 const CONSTRUCTION_TURNS = [0, 1, 2, 3];
+const CASH_VALUE_WEIGHT = 0.2;
+const LAP_VALUE_MULTIPLIER = 1.1;
+const ASSET_VALUE_MULTIPLIERS = [0.8, 1.25, 1.75, 2.5];
+const CONSTRUCTION_VALUE_WEIGHT = 0.8;
 
 const TILES = [
   { type: "start", name: "Walldorf", country: "HQ · Germany", flag: "🇩🇪", region: "HQ", note: "GLOBAL HQ" },
@@ -148,9 +152,25 @@ function buildingMarkup(level, className = "building-model", construction = null
   return `<i class="${className} building-level-${safeLevel}${constructionClass}" aria-hidden="true"><span class="building-tower tower-a"></span><span class="building-tower tower-b"></span><span class="building-tower tower-c"></span><b>${safeLevel === LANDMARK_LEVEL ? "★" : safeLevel}</b>${turns}</i>`;
 }
 
+function propertyValue(index) {
+  const property = propertyAt(index);
+  if (!property) return 0;
+  const level = Math.max(0, Math.min(LANDMARK_LEVEL, property.construction?.targetLevel ?? property.level ?? 0));
+  const constructionWeight = property.construction ? CONSTRUCTION_VALUE_WEIGHT : 1;
+  return Math.round((property.invested || 0) * ASSET_VALUE_MULTIPLIERS[level] * constructionWeight);
+}
+
+function valuationBreakdown(player) {
+  const cash = Math.round(Math.max(0, player.cash) * CASH_VALUE_WEIGHT);
+  const assets = player.owned.reduce((sum, index) => sum + propertyValue(index), 0);
+  const brand = Math.max(0, player.brandValue || 0);
+  const lapMultiplier = Math.pow(LAP_VALUE_MULTIPLIER, Math.max(0, player.laps || 0));
+  const scaledNonCash = Math.round((assets + brand) * lapMultiplier);
+  return { cash, assets, brand, lapMultiplier, total: cash + scaledNonCash };
+}
+
 function corporateValue(player) {
-  const invested = player.owned.reduce((sum, index) => sum + (propertyAt(index)?.invested || 0), 0);
-  return Math.max(0, player.cash) + invested + (player.brandValue || 0);
+  return valuationBreakdown(player).total;
 }
 
 function currentToll(index) {
@@ -221,6 +241,8 @@ function renderAll() {
   $("#turnChip").textContent = `TURN ${String(state.turn).padStart(2, "0")}`;
   setDigits($("#currentCash"), `C ${player.cash.toLocaleString("ko-KR")}`);
   setDigits($("#currentValue"), `C ${corporateValue(player).toLocaleString("ko-KR")}`);
+  const currentValuation = valuationBreakdown(player);
+  $("#currentValue").title = `현금 반영 C ${currentValuation.cash.toLocaleString("ko-KR")} + 비현금 자산 ×${currentValuation.lapMultiplier.toFixed(2)}`;
   setDigits($("#currentGoal"), `${Math.max(1, MAX_ROUNDS - state.round + 1)} R`);
   setDigits($("#currentHubs"), String(player.owned.length));
   setDigits($("#roundNumber"), String(state.round));
@@ -231,6 +253,7 @@ function renderAll() {
   $("#turnEyebrow").textContent = state.phase === "done" ? "CITY SYNCED" : "NEXT DESTINATION";
   $("#turnHeadline").textContent = `${player.name}의 글로벌 턴`;
   $("#turnHint").textContent = state.phase === "done" ? "현재 도시 처리가 완료되었습니다. 다음 팀으로 넘겨주세요." : "주사위를 굴려 다음 SAP 오피스로 이동하세요.";
+  renderValueRanking();
   renderPassport();
   renderOwnership();
   renderLog();
@@ -240,6 +263,25 @@ function renderAll() {
     const isActive = Number(token.dataset.player) === player.id;
     token.classList.toggle("is-active", isActive);
     token.classList.toggle("is-other", !isActive);
+  });
+}
+
+function renderValueRanking() {
+  const root = $("#valueRanking");
+  if (!root) return;
+  const ranked = [...state.players].sort((a, b) => {
+    if (a.active !== b.active) return a.active ? -1 : 1;
+    return corporateValue(b) - corporateValue(a) || b.owned.length - a.owned.length || a.id - b.id;
+  });
+  root.replaceChildren();
+  ranked.forEach((player, index) => {
+    const value = valuationBreakdown(player);
+    const item = document.createElement("li");
+    item.className = `value-rank${player.id === currentPlayer().id ? " is-current" : ""}${player.active ? "" : " is-out"}`;
+    item.style.setProperty("--player-color", player.color);
+    item.title = `현금 반영 C ${value.cash.toLocaleString("ko-KR")} · 도시/건물 C ${value.assets.toLocaleString("ko-KR")} · 브랜드 C ${value.brand.toLocaleString("ko-KR")} · 완주 배수 ×${value.lapMultiplier.toFixed(2)}`;
+    item.innerHTML = `<b>${index + 1}</b><i aria-hidden="true"></i><span><strong>${escapeHtml(player.name)}</strong><small>자산 C ${value.assets.toLocaleString("ko-KR")} · ×${value.lapMultiplier.toFixed(2)}</small></span><em>C ${value.total.toLocaleString("ko-KR")}</em>`;
+    root.appendChild(item);
   });
 }
 
@@ -562,6 +604,7 @@ function takeoverProperty(buyer, seller, index, cost) {
   seller.owned = seller.owned.filter(item => item !== index);
   if (!buyer.owned.includes(index)) buyer.owned.push(index);
   property.owner = buyer.id;
+  property.invested = Math.max(property.invested || 0, cost);
   closeGameModal();
   addLog(`${buyer.name} 팀이 ${seller.name}의 ${tile.name}를 C ${cost}에 인수했습니다.`, buyer.color);
   showToast("Takeover complete", `${tile.name}의 새 주인은 ${buyer.name}`, "↔", buyer.color);
@@ -579,6 +622,7 @@ function openEvent(tile) {
 function eliminatePlayer(player, creditor = null) {
   player.active = false;
   player.cash = 0;
+  player.brandValue = 0;
   player.owned.forEach(tileIndex => { if (creditor) { state.properties[tileIndex].owner = creditor.id; if (!creditor.owned.includes(tileIndex)) creditor.owned.push(tileIndex); } else delete state.properties[tileIndex]; });
   player.owned = [];
   addLog(`${player.name} 팀의 글로벌 투어가 종료되었습니다.`, "#ff756d");
