@@ -1,0 +1,11 @@
+{
+  "name": "sapmarble",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A local multiplayer SAP city board game",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs"
+  }
+}
