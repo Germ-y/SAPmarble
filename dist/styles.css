@@ -829,7 +829,18 @@ body {
 .passport-assets-head b { padding: 2px 6px; border: 1.5px solid var(--ink); border-radius: 999px; color: var(--ink); background: var(--amber); }
 .passport-assets { display: flex; min-height: 51px; gap: 6px; overflow-x: auto; padding: 2px 2px 5px; scrollbar-width: thin; scrollbar-color: var(--player-color) transparent; }
 .passport-city { position: relative; display: grid; flex: 0 0 104px; grid-template-columns: auto 1fr; align-items: center; gap: 1px 6px; min-width: 0; padding: 7px 8px; border: 2px solid var(--ink); border-radius: 10px; background: color-mix(in srgb, var(--city-color) 36%, white); box-shadow: 2px 3px 0 var(--ink); }
-.passport-city i { grid-row: 1 / 3; display: grid; place-items: center; width: 24px; height: 24px; border: 1.5px solid var(--ink); border-radius: 50%; color: var(--ink); background: white; font-size: 7px; font-style: normal; font-weight: 900; }
+.passport-building {
+  --owner-color: var(--player-color);
+  position: relative;
+  grid-row: 1 / 3;
+  display: block;
+  width: 30px;
+  height: 28px;
+  color: var(--ink);
+  font-style: normal;
+}
+.passport-building .building-tower { bottom: 2px; }
+.passport-building > b { right: -2px; bottom: -2px; }
 .passport-city b, .passport-city small { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .passport-city b { color: var(--ink); font-size: 8px; }
 .passport-city small { color: #5b6875; font-size: 6.5px; font-weight: 800; }
@@ -1631,28 +1642,62 @@ body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
   78% { transform: translateY(-8px) rotateX(624deg) rotateY(-594deg) rotateZ(-176deg); }
   100% { transform: translateY(0) rotateX(760deg) rotateY(-720deg) rotateZ(-224deg); }
 }
-.property-level {
+.building-model {
   position: absolute;
-  z-index: 7;
-  top: 22px;
-  right: 4px;
-  max-width: calc(100% - 8px);
-  padding: 2px 4px;
-  overflow: hidden;
+  z-index: 6;
+  bottom: 14px;
+  left: 50%;
+  display: block;
+  width: 34px;
+  height: 25px;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+.building-tower {
+  position: absolute;
+  bottom: 1px;
+  display: block;
   border: 1.5px solid var(--ink);
-  border-radius: 999px;
-  color: var(--ink);
+  border-radius: 3px 3px 1px 1px;
   background: color-mix(in srgb, var(--owner-color) 72%, white);
   box-shadow: 1px 1px 0 var(--ink);
-  font-family: "Nunito Sans", "Noto Sans KR", sans-serif;
-  font-size: 5.5px;
+}
+.building-tower::after {
+  content: "";
+  position: absolute;
+  inset: 3px 2px auto;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(255,255,255,.82);
+  box-shadow: 0 5px 0 rgba(255,255,255,.68);
+}
+.tower-a { left: 2px; width: 12px; height: 14px; }
+.tower-b { left: 12px; width: 11px; height: 20px; }
+.tower-c { left: 21px; width: 12px; height: 17px; }
+.building-level-1 .tower-b, .building-level-1 .tower-c { display: none; }
+.building-level-2 .tower-c { display: none; }
+.building-level-3 .tower-b { height: 24px; border-radius: 7px 7px 1px 1px; background: var(--amber); }
+.building-model > b, .passport-building > b {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  color: var(--ink);
+  background: white;
+  box-shadow: 1px 1px 0 var(--ink);
+  font-size: 6px;
   font-weight: 900;
   line-height: 1;
-  letter-spacing: .02em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
-.tile.is-rival-hub .property-level { opacity: .78; }
+.tile.has-building .tile-body { padding-bottom: 22px; }
+.tile.is-rival-hub .building-model { opacity: .72; filter: grayscale(.45); }
+.tile:hover .building-model { transform: translateX(-50%) translateY(-2px); }
 
 @media (min-width: 1181px) {
   .dice-zone { grid-template-columns: minmax(0, 1fr) 132px; }

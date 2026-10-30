@@ -5,8 +5,9 @@ const REGION_LABELS = { HQ: "HQ", EUROPE: "EUR", AMERICAS: "AMER", MEA: "MEA", A
 const MAX_ROUNDS = 12;
 const STARTING_CASH = 2000;
 const STORAGE_KEY = "sap-city-run-v3";
-const BUILDING_LABELS = ["", "출장소", "오피스", "캠퍼스", "랜드마크"];
-const TOLL_MULTIPLIERS = [0, 1, 2, 4, 8];
+const BUILDING_LABELS = ["", "SAP", "SAP Labs", "SAP 랜드마크"];
+const TOLL_MULTIPLIERS = [0, 1, 3, 7];
+const LANDMARK_LEVEL = BUILDING_LABELS.length - 1;
 
 const TILES = [
   { type: "start", name: "Walldorf", country: "HQ · Germany", flag: "🇩🇪", region: "HQ", note: "GLOBAL HQ" },
@@ -130,7 +131,18 @@ function hasMonopoly(ownerId, group) {
 }
 
 function upgradeCost(tile, nextLevel) {
-  return Math.ceil(tile.price * ({ 2: .5, 3: .75, 4: 1 }[nextLevel] || 0) / 10) * 10;
+  return Math.ceil(tile.price * ({ 2: .75, 3: 1.25 }[nextLevel] || 0) / 10) * 10;
+}
+
+function acquisitionCost(tile, level) {
+  let cost = tile.price;
+  for (let nextLevel = 2; nextLevel <= level; nextLevel++) cost += upgradeCost(tile, nextLevel);
+  return cost;
+}
+
+function buildingMarkup(level, className = "building-model") {
+  const safeLevel = Math.max(1, Math.min(LANDMARK_LEVEL, Number(level) || 1));
+  return `<i class="${className} building-level-${safeLevel}" aria-hidden="true"><span class="building-tower tower-a"></span><span class="building-tower tower-b"></span><span class="building-tower tower-c"></span><b>${safeLevel === LANDMARK_LEVEL ? "★" : safeLevel}</b></i>`;
 }
 
 function corporateValue(player) {
@@ -143,10 +155,10 @@ function currentToll(index) {
   const property = propertyAt(index);
   if (!property) return 0;
   const monopoly = hasMonopoly(property.owner, tile.group);
-  return Math.round(tile.fee * TOLL_MULTIPLIERS[property.level] * (monopoly ? 2 : 1));
+  return Math.round(tile.fee * TOLL_MULTIPLIERS[Math.min(property.level, LANDMARK_LEVEL)] * (monopoly ? 2 : 1));
 }
 
-function maxBuildLevel(player) { return Math.min(4, (player.laps || 0) + 1); }
+function maxBuildLevel(player) { return Math.min(LANDMARK_LEVEL, (player.laps || 0) + 1); }
 
 function setDigits(group, str) {
   const prev = group.textContent.replace(/\s+/g, "");
@@ -213,9 +225,10 @@ function renderPassport() {
         const tile = TILES[tileIndex];
         const property = propertyAt(tileIndex);
         const monopoly = hasMonopoly(player.id, tile.group);
-        return `<span class="passport-city" style="--city-color:${REGION_COLORS[tile.region]}"><i>${property?.level === 4 ? "LM" : property?.level || 1}</i><b>${escapeHtml(tile.name)}</b><small>${escapeHtml(BUILDING_LABELS[property?.level || 1])} · C ${currentToll(tileIndex)}${monopoly ? " ×2" : ""}</small></span>`;
+        const level = property?.level || 1;
+        return `<span class="passport-city" style="--city-color:${REGION_COLORS[tile.region]}">${buildingMarkup(level, "passport-building")}<b>${escapeHtml(tile.name)}</b><small>${escapeHtml(BUILDING_LABELS[level])} · C ${currentToll(tileIndex)}${monopoly ? " ×2" : ""}</small></span>`;
       }).join("")
-    : `<div class="passport-empty"><b>첫 도시 인수를 기다리는 중</b><span>빈 SAP 도시에 도착해 출장소를 세워 보세요.</span></div>`;
+    : `<div class="passport-empty"><b>첫 도시 인수를 기다리는 중</b><span>빈 도시에 도착해 SAP를 세워 보세요.</span></div>`;
   passport.style.setProperty("--player-color", player.color);
   passport.setAttribute("aria-label", `${player.name}의 개인 현황. 보유 자금 ${player.cash}, 기업가치 ${corporateValue(player)}, 보유 도시 ${player.owned.length}개`);
   passport.innerHTML = `
@@ -230,26 +243,29 @@ function renderPassport() {
 }
 
 function renderOwnership() {
-  $$(".tile-owner, .property-level").forEach(node => node.remove());
-  $$(".tile").forEach(tile => tile.classList.remove("is-my-hub", "is-rival-hub"));
+  $$(".tile-owner, .property-level, .building-model").forEach(node => node.remove());
+  $$(".tile").forEach(tile => tile.classList.remove("is-my-hub", "is-rival-hub", "has-building"));
   const activePlayer = currentPlayer();
   Object.entries(state.properties).forEach(([tileIndex, property]) => {
     const tile = $(`.tile[data-index="${tileIndex}"]`);
     const owner = state.players[property.owner];
     if (!tile || !owner) return;
     const isMine = owner.id === activePlayer.id;
-    tile.classList.add(isMine ? "is-my-hub" : "is-rival-hub");
+    tile.classList.add(isMine ? "is-my-hub" : "is-rival-hub", "has-building");
     tile.style.setProperty("--owner-color", owner.color);
     const marker = document.createElement("i");
     marker.className = "tile-owner";
     marker.style.setProperty("--owner-color", owner.color);
     marker.title = isMine ? `내 도시 · ${tile.querySelector(".tile-name")?.textContent || ""}` : "다른 팀이 운영 중인 도시";
     tile.appendChild(marker);
-    const level = document.createElement("span");
-    level.className = "property-level";
-    level.textContent = property.level === 4 ? "LANDMARK" : `LV ${property.level}`;
-    level.title = BUILDING_LABELS[property.level];
-    tile.appendChild(level);
+    const building = document.createElement("span");
+    const level = Math.min(property.level, LANDMARK_LEVEL);
+    building.className = `building-model building-level-${level}`;
+    building.setAttribute("role", "img");
+    building.setAttribute("aria-label", `${BUILDING_LABELS[level]} 건물`);
+    building.title = `${BUILDING_LABELS[level]} · 통행료 C ${currentToll(Number(tileIndex))}`;
+    building.innerHTML = `<span class="building-tower tower-a"></span><span class="building-tower tower-b"></span><span class="building-tower tower-c"></span><b>${level === LANDMARK_LEVEL ? "★" : level}</b>`;
+    tile.appendChild(building);
   });
 }
 
@@ -440,28 +456,49 @@ function resolveTile() {
     return showModal({ icon: "!", eyebrow: "BANKRUPTCY", title: `${tile.name} 통행료로 파산했습니다`, body: `${owner.name} 팀에 보유 현금과 도시 자산이 이전됩니다.`, color: owner.color, stats: [["청구 통행료", `C ${toll}`], ["지급 금액", `C ${payment}`]], actions: [{ label: "자산 정리", primary: true, onClick: () => { closeGameModal(); eliminatePlayer(player, owner); finishResolution(); } }] });
   }
   const takeoverCost = Math.ceil(property.invested * 2 / 10) * 10;
-  const canTakeover = property.level < 4 && player.cash >= takeoverCost;
+  const canTakeover = property.level < LANDMARK_LEVEL && player.cash >= takeoverCost;
   const actions = [];
-  if (property.level < 4) actions.push({ label: canTakeover ? `C ${takeoverCost}에 인수` : "인수 자금 부족", primary: true, disabled: !canTakeover, onClick: () => takeoverProperty(player, owner, player.position, takeoverCost) });
-  actions.push({ label: "통행료만 내기", primary: property.level === 4, onClick: () => { closeGameModal(); finishResolution(); } });
-  showModal({ icon: tile.flag, eyebrow: `${monopoly ? "COLOR MONOPOLY · " : ""}${BUILDING_LABELS[property.level]}`, title: `${owner.name}의 ${tile.name}`, body: `${BUILDING_LABELS[property.level]} 통행료를 지급했습니다.${property.level === 4 ? " 랜드마크는 인수할 수 없습니다." : " 원하면 현재 투자액의 2배로 도시를 인수할 수 있습니다."}`, color: owner.color, stats: [["통행료", `C ${toll}${monopoly ? " × 독점" : ""}`], ["남은 현금", `C ${player.cash}`], ["인수 가격", property.level === 4 ? "보호됨" : `C ${takeoverCost}`]], actions });
+  if (property.level < LANDMARK_LEVEL) actions.push({ label: canTakeover ? `C ${takeoverCost}에 인수` : "인수 자금 부족", primary: true, disabled: !canTakeover, onClick: () => takeoverProperty(player, owner, player.position, takeoverCost) });
+  actions.push({ label: "통행료만 내기", primary: property.level === LANDMARK_LEVEL, onClick: () => { closeGameModal(); finishResolution(); } });
+  showModal({ icon: tile.flag, eyebrow: `${monopoly ? "COLOR MONOPOLY · " : ""}${BUILDING_LABELS[property.level]}`, title: `${owner.name}의 ${tile.name}`, body: `${BUILDING_LABELS[property.level]} 통행료를 지급했습니다.${property.level === LANDMARK_LEVEL ? " SAP 랜드마크는 인수할 수 없습니다." : " 원하면 현재 투자액의 2배로 도시를 인수할 수 있습니다."}`, color: owner.color, stats: [["통행료", `C ${toll}${monopoly ? " × 독점" : ""}`], ["남은 현금", `C ${player.cash}`], ["인수 가격", property.level === LANDMARK_LEVEL ? "보호됨" : `C ${takeoverCost}`]], actions });
 }
 
 function offerCity(tile, index) {
   const player = currentPlayer();
   const canBuy = player.cash >= tile.price;
-  showModal({ icon: tile.flag, eyebrow: `${tile.group} · NEW CITY`, title: `${tile.name}를 인수할까요?`, body: `${tile.country}의 SAP 도시에 출장소를 세웁니다. 같은 컬러 도시를 모두 인수하면 통행료가 2배가 됩니다.`, color: REGION_COLORS[tile.region], stats: [["인수 가격", `C ${tile.price}`], ["첫 건물", "출장소"], ["기본 통행료", `C ${tile.fee}`], ["보유 현금", `C ${player.cash}`]], actions: [
-    { label: canBuy ? "도시 인수" : "현금 부족", primary: true, disabled: !canBuy, onClick: () => { player.cash -= tile.price; player.owned.push(index); state.properties[index] = { owner: player.id, level: 1, invested: tile.price }; addLog(`${player.name} 팀이 ${tile.name}를 인수하고 출장소를 세웠습니다.`, player.color); closeGameModal(); showToast("City acquired", `${tile.name} · 출장소 오픈`, tile.flag, player.color); playTone(620, .1); finishResolution(); } },
-    { label: "이번에는 통과", onClick: () => { addLog(`${player.name} 팀이 ${tile.name} 인수를 보류했습니다.`, "#708a9b"); closeGameModal(); finishResolution(); } }
-  ] });
+  const unlocked = maxBuildLevel(player);
+  let packageLevel = unlocked;
+  while (packageLevel > 1 && player.cash < acquisitionCost(tile, packageLevel)) packageLevel--;
+  const actions = [];
+  if (packageLevel > 1) {
+    const packageCost = acquisitionCost(tile, packageLevel);
+    actions.push({ label: `${BUILDING_LABELS[packageLevel]}까지 · C ${packageCost}`, primary: true, onClick: () => buyCityWithBuilding(player, tile, index, packageLevel) });
+  }
+  actions.push({ label: canBuy ? `SAP만 · C ${tile.price}` : "현금 부족", primary: packageLevel === 1, disabled: !canBuy, onClick: () => buyCityWithBuilding(player, tile, index, 1) });
+  actions.push({ label: "이번에는 통과", onClick: () => { addLog(`${player.name} 팀이 ${tile.name} 인수를 보류했습니다.`, "#708a9b"); closeGameModal(); finishResolution(); } });
+  const packageCost = acquisitionCost(tile, unlocked);
+  showModal({ icon: tile.flag, eyebrow: `${tile.group} · NEW CITY`, title: `${tile.name}에 건설할까요?`, body: `${tile.country} SAP 도시를 인수하고 건물을 세웁니다. SAP와 SAP Labs를 모두 건설하면 SAP 랜드마크를 완성할 수 있습니다.`, color: REGION_COLORS[tile.region], stats: [["SAP 포함", `C ${tile.price}`], ["현재 해금", BUILDING_LABELS[unlocked]], ["최대 패키지", `C ${packageCost}`], ["보유 현금", `C ${player.cash}`]], actions });
+}
+
+function buyCityWithBuilding(player, tile, index, level) {
+  const cost = acquisitionCost(tile, level);
+  if (player.cash < cost || propertyAt(index)) return;
+  player.cash -= cost;
+  if (!player.owned.includes(index)) player.owned.push(index);
+  state.properties[index] = { owner: player.id, level, invested: cost };
+  addLog(`${player.name} 팀이 ${tile.name}를 인수하고 ${BUILDING_LABELS[level]}를 세웠습니다.`, player.color);
+  closeGameModal();
+  showToast("City developed", `${tile.name} · ${BUILDING_LABELS[level]} 완공`, level === LANDMARK_LEVEL ? "★" : "▥", player.color);
+  playTone(level === LANDMARK_LEVEL ? 760 : 620 + level * 35, .12);
+  finishResolution();
 }
 
 function offerUpgrade(tile, index) {
   const player = currentPlayer();
   const property = propertyAt(index);
   const unlocked = maxBuildLevel(player);
-  if (property.level >= 4) {
-    showToast(`${tile.name} 랜드마크`, "최고 단계로 완성된 도시입니다.", "★", player.color);
+  if (property.level >= LANDMARK_LEVEL) {
+    showToast(`${tile.name} SAP 랜드마크`, "SAP와 SAP Labs를 모두 갖춘 최고 단계 도시입니다.", "★", player.color);
     return finishResolution();
   }
   const nextLevel = property.level + 1;
@@ -711,6 +748,7 @@ function loadSaved() {
       parsed.extraRoll = false;
       if (parsed.players[parsed.current]) parsed.players[parsed.current].doubleStreak = 0;
     }
+    Object.values(parsed.properties || {}).forEach(property => { property.level = Math.max(1, Math.min(LANDMARK_LEVEL, property.level || 1)); });
     return parsed;
   } catch { return null; }
 }
