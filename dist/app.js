@@ -390,7 +390,11 @@ function updateAction() {
   const label = $("#actionText");
   button.dataset.action = "none";
   if (!state) { button.disabled = true; label.textContent = "게임 시작하기"; return; }
-  if (state.phase === "ready") { button.disabled = false; button.dataset.action = "roll"; label.textContent = "주사위 굴리기"; }
+  if (state.phase === "ready") {
+    button.disabled = false;
+    button.dataset.action = "roll";
+    label.textContent = (currentPlayer().doubleStreak || 0) > 0 ? "더블 보너스 굴리기" : "주사위 굴리기";
+  }
   else if (state.phase === "done") { button.disabled = false; button.dataset.action = "next"; label.textContent = "다음 팀 턴 시작"; }
   else if (state.phase === "gameover") { button.disabled = true; label.textContent = "게임 종료"; }
   else { button.disabled = true; label.textContent = state.phase === "rolling" ? "글로벌 경로 계산 중…" : state.phase === "transition" ? "다음 팀 준비 중…" : "도시 처리 중…"; }
@@ -451,6 +455,7 @@ async function rollDice() {
 async function sendToIsland(player, fromTripleDouble = false) {
   state.phase = "resolving";
   state.extraRoll = false;
+  player.doubleStreak = 0;
   player.position = 8;
   player.skipTurns = 1;
   await moveToken(player, 8);
@@ -522,7 +527,7 @@ function resolveTile() {
   const owner = state.players[property.owner];
   if (property.construction) {
     const targetLevel = property.construction.targetLevel;
-    return showModal({ icon: tile.flag, eyebrow: "CONSTRUCTION SITE", title: `${owner.name}의 ${tile.name}는 공사 중`, body: `${BUILDING_LABELS[targetLevel]} 완공까지 ${property.construction.turnsRemaining}턴 남았습니다. 공사 중에는 통행료와 도시 인수가 일시 중지됩니다.`, color: owner.color, stats: [["건설 목표", BUILDING_LABELS[targetLevel]], ["남은 기간", `${property.construction.turnsRemaining}턴`], ["현재 통행료", "C 0"], ["도시 상태", "인수 보호"]], actions: [{ label: "확인", primary: true, onClick: () => { closeGameModal(); finishResolution(); } }] });
+    return showModal({ icon: tile.flag, eyebrow: "FINAL DESTINATION · CONSTRUCTION SITE", title: `${owner.name}의 ${tile.name} 공사 구간에 도착했습니다`, body: `이 칸은 주사위 이동의 최종 도착 칸입니다. 이동 중 지나치기만 할 때는 멈추지 않고 그대로 통과합니다. ${BUILDING_LABELS[targetLevel]} 완공까지 ${property.construction.turnsRemaining}턴 남아 현재 통행료와 도시 인수는 없습니다.`, color: owner.color, stats: [["건설 목표", BUILDING_LABELS[targetLevel]], ["남은 기간", `${property.construction.turnsRemaining}턴`], ["현재 통행료", "C 0"], ["도시 상태", "통과 자유 · 도착 처리"]], actions: [{ label: "통행료 없이 턴 마치기", primary: true, onClick: () => { closeGameModal(); finishResolution(); } }] });
   }
   const toll = currentToll(player.position);
   const payment = Math.min(player.cash, toll);
@@ -756,16 +761,28 @@ function showModal({ icon, eyebrow, title, body, color, stats = [], actions = []
   $("#modalStats").innerHTML = stats.map(([label, value]) => `<div class="modal-stat"><span>${escapeHtml(label)}</span><b>${escapeHtml(value)}</b></div>`).join("");
   const actionsRoot = $("#modalActions");
   actionsRoot.replaceChildren();
+  let actionHandled = false;
+  const runActionOnce = action => {
+    if (actionHandled || !action || action.disabled) return;
+    actionHandled = true;
+    $$(`button`, actionsRoot).forEach(button => { button.disabled = true; });
+    modalCloseHandler = null;
+    action.onClick();
+  };
   actions.forEach(action => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = `modal-action ${action.primary ? "primary" : ""}`;
     button.textContent = action.label;
     button.disabled = Boolean(action.disabled);
-    button.addEventListener("click", action.onClick);
+    button.addEventListener("click", event => {
+      event.preventDefault();
+      runActionOnce(action);
+    });
     actionsRoot.appendChild(button);
   });
-  modalCloseHandler = actions.at(-1)?.onClick || null;
+  const fallbackAction = [...actions].reverse().find(action => !action.disabled);
+  modalCloseHandler = fallbackAction ? () => runActionOnce(fallbackAction) : null;
   layer.classList.add("is-open");
   layer.setAttribute("aria-hidden", "false");
   modal.classList.remove("is-closing");
@@ -889,6 +906,7 @@ function bindEvents() {
   $("#soundButton").addEventListener("click", () => { soundOn = !soundOn; $("#soundButton").setAttribute("aria-pressed", String(soundOn)); $("#soundButton").setAttribute("aria-label", soundOn ? "효과음 끄기" : "효과음 켜기"); if (soundOn) playTone(480, .08); });
   $("#resetButton").addEventListener("click", () => { if (!state || confirm("현재 게임을 초기화하고 새로 시작할까요?")) { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem("sap-city-run-v2"); location.reload(); } });
   document.addEventListener("keydown", event => {
+    if (event.code === "Space" && event.repeat) { event.preventDefault(); return; }
     if (event.code === "Space" && state && !$(".modal-layer.is-open") && !$("#setupLayer").classList.contains("is-visible")) { event.preventDefault(); $("#actionButton").click(); }
     if (event.key === "Escape") { if ($("#rulesLayer").classList.contains("is-open")) closeRules(); else if ($("#modalLayer").classList.contains("is-open")) modalCloseHandler?.(); }
   });
