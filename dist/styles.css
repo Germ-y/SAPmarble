@@ -1370,7 +1370,7 @@ body {
     box-shadow: 7px 9px 0 var(--ink), 0 20px 55px rgba(29,45,68,.2);
   }
   #modalLayer .game-modal::before { left: -10px; width: 16px; height: 34px; }
-  #modalLayer .modal-close { top: 11px; right: 11px; width: 29px; height: 29px; }
+  #modalLayer .modal-close { top: 25px; right: 18px; width: 29px; height: 29px; }
   #modalLayer .modal-icon {
     grid-column: 1;
     grid-row: 1 / 3;
@@ -1430,6 +1430,7 @@ body {
     padding: 22px;
     border-radius: 22px 22px 14px 14px;
   }
+  #modalLayer .modal-close { top: 33px; right: 22px; }
   #gameModal.t-modal {
     transform: translateY(28px) scale(.98);
     transform-origin: bottom center;
@@ -1677,6 +1678,36 @@ body *:not(.sap-logo):not(.sap-logo-small):not(.sap-logo-mini) {
 .building-level-1 .tower-b, .building-level-1 .tower-c { display: none; }
 .building-level-2 .tower-c { display: none; }
 .building-level-3 .tower-b { height: 24px; border-radius: 7px 7px 1px 1px; background: var(--amber); }
+.building-model.is-under-construction::before,
+.passport-building.is-under-construction::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0 0 1px;
+  border: 1px dashed var(--ink);
+  background: repeating-linear-gradient(135deg, rgba(255,193,78,.2) 0 3px, rgba(255,255,255,.34) 3px 6px);
+}
+.is-under-construction .building-tower { opacity: .5; filter: grayscale(.35); }
+.construction-turns {
+  position: absolute;
+  z-index: 4;
+  top: -7px;
+  left: 50%;
+  min-width: 20px;
+  padding: 2px 3px;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--amber);
+  box-shadow: 1px 1px 0 var(--ink);
+  font-size: 6px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+  transform: translateX(-50%);
+}
+.tile.construction-site { box-shadow: 3px 4px 0 var(--ink), 0 0 0 3px var(--amber); }
 .building-model > b, .passport-building > b {
   position: absolute;
   z-index: 2;

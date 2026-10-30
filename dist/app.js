@@ -8,6 +8,7 @@ const STORAGE_KEY = "sap-city-run-v3";
 const BUILDING_LABELS = ["", "SAP", "SAP Labs", "랜드마크"];
 const TOLL_MULTIPLIERS = [0, 1, 3, 7];
 const LANDMARK_LEVEL = BUILDING_LABELS.length - 1;
+const CONSTRUCTION_TURNS = [0, 1, 2, 3];
 
 const TILES = [
   { type: "start", name: "Walldorf", country: "HQ · Germany", flag: "🇩🇪", region: "HQ", note: "GLOBAL HQ" },
@@ -140,9 +141,11 @@ function acquisitionCost(tile, level) {
   return cost;
 }
 
-function buildingMarkup(level, className = "building-model") {
+function buildingMarkup(level, className = "building-model", construction = null) {
   const safeLevel = Math.max(1, Math.min(LANDMARK_LEVEL, Number(level) || 1));
-  return `<i class="${className} building-level-${safeLevel}" aria-hidden="true"><span class="building-tower tower-a"></span><span class="building-tower tower-b"></span><span class="building-tower tower-c"></span><b>${safeLevel === LANDMARK_LEVEL ? "★" : safeLevel}</b></i>`;
+  const constructionClass = construction ? " is-under-construction" : "";
+  const turns = construction ? `<em class="construction-turns">${construction.turnsRemaining}T</em>` : "";
+  return `<i class="${className} building-level-${safeLevel}${constructionClass}" aria-hidden="true"><span class="building-tower tower-a"></span><span class="building-tower tower-b"></span><span class="building-tower tower-c"></span><b>${safeLevel === LANDMARK_LEVEL ? "★" : safeLevel}</b>${turns}</i>`;
 }
 
 function corporateValue(player) {
@@ -159,6 +162,30 @@ function currentToll(index) {
 }
 
 function maxBuildLevel(player) { return Math.min(LANDMARK_LEVEL, (player.laps || 0) + 1); }
+
+function constructionDuration(level) { return CONSTRUCTION_TURNS[Math.max(1, Math.min(LANDMARK_LEVEL, level))]; }
+
+function beginConstruction(property, targetLevel) {
+  const duration = constructionDuration(targetLevel);
+  property.construction = { targetLevel, turnsRemaining: duration, totalTurns: duration };
+  return duration;
+}
+
+function advanceConstruction(player) {
+  const completed = [];
+  player.owned.forEach(tileIndex => {
+    const property = propertyAt(tileIndex);
+    if (!property?.construction) return;
+    property.construction.turnsRemaining = Math.max(0, property.construction.turnsRemaining - 1);
+    if (property.construction.turnsRemaining > 0) return;
+    const level = property.construction.targetLevel;
+    property.level = level;
+    delete property.construction;
+    completed.push({ tileIndex, tile: TILES[tileIndex], level });
+    addLog(`${player.name} 팀: ${TILES[tileIndex].name} ${BUILDING_LABELS[level]} 완공`, player.color);
+  });
+  return completed;
+}
 
 function setDigits(group, str) {
   const prev = group.textContent.replace(/\s+/g, "");
@@ -225,8 +252,12 @@ function renderPassport() {
         const tile = TILES[tileIndex];
         const property = propertyAt(tileIndex);
         const monopoly = hasMonopoly(player.id, tile.group);
-        const level = property?.level || 1;
-        return `<span class="passport-city" style="--city-color:${REGION_COLORS[tile.region]}">${buildingMarkup(level, "passport-building")}<b>${escapeHtml(tile.name)}</b><small>${escapeHtml(BUILDING_LABELS[level])} · C ${currentToll(tileIndex)}${monopoly ? " ×2" : ""}</small></span>`;
+        const construction = property?.construction || null;
+        const level = construction?.targetLevel || property?.level || 1;
+        const status = construction
+          ? `${BUILDING_LABELS[level]} 건설 중 · ${construction.turnsRemaining}턴`
+          : `${BUILDING_LABELS[level]} · C ${currentToll(tileIndex)}${monopoly ? " ×2" : ""}`;
+        return `<span class="passport-city" style="--city-color:${REGION_COLORS[tile.region]}">${buildingMarkup(level, "passport-building", construction)}<b>${escapeHtml(tile.name)}</b><small>${escapeHtml(status)}</small></span>`;
       }).join("")
     : `<div class="passport-empty"><b>첫 도시 인수를 기다리는 중</b><span>빈 도시에 도착해 SAP를 세워 보세요.</span></div>`;
   passport.style.setProperty("--player-color", player.color);
@@ -244,7 +275,7 @@ function renderPassport() {
 
 function renderOwnership() {
   $$(".tile-owner, .property-level, .building-model").forEach(node => node.remove());
-  $$(".tile").forEach(tile => tile.classList.remove("is-my-hub", "is-rival-hub", "has-building"));
+  $$(".tile").forEach(tile => tile.classList.remove("is-my-hub", "is-rival-hub", "has-building", "construction-site"));
   const activePlayer = currentPlayer();
   Object.entries(state.properties).forEach(([tileIndex, property]) => {
     const tile = $(`.tile[data-index="${tileIndex}"]`);
@@ -259,13 +290,15 @@ function renderOwnership() {
     marker.title = isMine ? `내 도시 · ${tile.querySelector(".tile-name")?.textContent || ""}` : "다른 팀이 운영 중인 도시";
     tile.appendChild(marker);
     const building = document.createElement("span");
-    const level = Math.min(property.level, LANDMARK_LEVEL);
-    building.className = `building-model building-level-${level}`;
+    const construction = property.construction || null;
+    const level = Math.max(1, Math.min(construction?.targetLevel || property.level, LANDMARK_LEVEL));
+    building.className = `building-model building-level-${level}${construction ? " is-under-construction" : ""}`;
     building.setAttribute("role", "img");
-    building.setAttribute("aria-label", `${BUILDING_LABELS[level]} 건물`);
-    building.title = `${BUILDING_LABELS[level]} · 통행료 C ${currentToll(Number(tileIndex))}`;
-    building.innerHTML = `<span class="building-tower tower-a"></span><span class="building-tower tower-b"></span><span class="building-tower tower-c"></span><b>${level === LANDMARK_LEVEL ? "★" : level}</b>`;
+    building.setAttribute("aria-label", construction ? `${BUILDING_LABELS[level]} 건설 중, ${construction.turnsRemaining}턴 남음` : `${BUILDING_LABELS[level]} 건물`);
+    building.title = construction ? `${BUILDING_LABELS[level]} 건설 중 · ${construction.turnsRemaining}턴 남음` : `${BUILDING_LABELS[level]} · 통행료 C ${currentToll(Number(tileIndex))}`;
+    building.innerHTML = `<span class="building-tower tower-a"></span><span class="building-tower tower-b"></span><span class="building-tower tower-c"></span><b>${level === LANDMARK_LEVEL ? "★" : level}</b>${construction ? `<em class="construction-turns">${construction.turnsRemaining}T</em>` : ""}`;
     tile.appendChild(building);
+    if (construction) tile.classList.add("construction-site");
   });
 }
 
@@ -445,6 +478,10 @@ function resolveTile() {
   if (!property) return offerCity(tile, player.position);
   if (property.owner === player.id) return offerUpgrade(tile, player.position);
   const owner = state.players[property.owner];
+  if (property.construction) {
+    const targetLevel = property.construction.targetLevel;
+    return showModal({ icon: tile.flag, eyebrow: "CONSTRUCTION SITE", title: `${owner.name}의 ${tile.name}는 공사 중`, body: `${BUILDING_LABELS[targetLevel]} 완공까지 ${property.construction.turnsRemaining}턴 남았습니다. 공사 중에는 통행료와 도시 인수가 일시 중지됩니다.`, color: owner.color, stats: [["건설 목표", BUILDING_LABELS[targetLevel]], ["남은 기간", `${property.construction.turnsRemaining}턴`], ["현재 통행료", "C 0"], ["도시 상태", "인수 보호"]], actions: [{ label: "확인", primary: true, onClick: () => { closeGameModal(); finishResolution(); } }] });
+  }
   const toll = currentToll(player.position);
   const payment = Math.min(player.cash, toll);
   player.cash -= payment;
@@ -476,8 +513,7 @@ function offerCity(tile, index) {
   }
   actions.push({ label: canBuy ? `SAP 건설 · C ${tile.price}` : "현금 부족", primary: packageLevel === 1, disabled: !canBuy, onClick: () => buyCityWithBuilding(player, tile, index, 1) });
   actions.push({ label: "이번에는 통과", onClick: () => { addLog(`${player.name} 팀이 ${tile.name} 인수를 보류했습니다.`, "#708a9b"); closeGameModal(); finishResolution(); } });
-  const packageCost = acquisitionCost(tile, unlocked);
-  showModal({ icon: tile.flag, eyebrow: `${tile.group} · NEW CITY`, title: `${tile.name}에 건설할까요?`, body: `${tile.country} SAP 도시를 인수하고 건물을 세웁니다. SAP와 SAP Labs를 모두 건설하면 랜드마크를 완성할 수 있습니다.`, color: REGION_COLORS[tile.region], stats: [["SAP 포함", `C ${tile.price}`], ["현재 해금", BUILDING_LABELS[unlocked]], ["최대 패키지", `C ${packageCost}`], ["보유 현금", `C ${player.cash}`]], actions });
+  showModal({ icon: tile.flag, eyebrow: `${tile.group} · NEW CITY`, title: `${tile.name}에 건설할까요?`, body: `${tile.country} SAP 도시를 인수하고 건물을 세웁니다. SAP와 SAP Labs를 모두 건설하면 랜드마크를 완성할 수 있습니다.`, color: REGION_COLORS[tile.region], stats: [["SAP 공사", "1턴"], ["현재 해금", BUILDING_LABELS[unlocked]], ["최대 공사", `${constructionDuration(unlocked)}턴`], ["보유 현금", `C ${player.cash}`]], actions });
 }
 
 function buyCityWithBuilding(player, tile, index, level) {
@@ -485,11 +521,13 @@ function buyCityWithBuilding(player, tile, index, level) {
   if (player.cash < cost || propertyAt(index)) return;
   player.cash -= cost;
   if (!player.owned.includes(index)) player.owned.push(index);
-  state.properties[index] = { owner: player.id, level, invested: cost };
-  addLog(`${player.name} 팀이 ${tile.name}를 인수하고 ${BUILDING_LABELS[level]}를 세웠습니다.`, player.color);
+  const property = { owner: player.id, level: 0, invested: cost };
+  const duration = beginConstruction(property, level);
+  state.properties[index] = property;
+  addLog(`${player.name} 팀이 ${tile.name}를 인수하고 ${BUILDING_LABELS[level]} 건설을 시작했습니다. (${duration}턴)`, player.color);
   closeGameModal();
-  showToast("City developed", `${tile.name} · ${BUILDING_LABELS[level]} 완공`, level === LANDMARK_LEVEL ? "★" : "▥", player.color);
-  playTone(level === LANDMARK_LEVEL ? 760 : 620 + level * 35, .12);
+  showToast("Construction started", `${tile.name} · ${BUILDING_LABELS[level]} · ${duration}턴 후 완공`, "▥", player.color);
+  playTone(540 + level * 35, .12);
   finishResolution();
 }
 
@@ -497,6 +535,11 @@ function offerUpgrade(tile, index) {
   const player = currentPlayer();
   const property = propertyAt(index);
   const unlocked = maxBuildLevel(player);
+  if (property.construction) {
+    const targetLevel = property.construction.targetLevel;
+    showModal({ icon: tile.flag, eyebrow: "CONSTRUCTION IN PROGRESS", title: `${tile.name} ${BUILDING_LABELS[targetLevel]} 공사 중`, body: `완공까지 ${property.construction.turnsRemaining}턴 남았습니다. 완공 후 다음 단계 건설을 시작할 수 있습니다.`, color: player.color, stats: [["건설 목표", BUILDING_LABELS[targetLevel]], ["남은 기간", `${property.construction.turnsRemaining}턴`], ["현재 통행료", "C 0"], ["다음 단계", targetLevel < LANDMARK_LEVEL ? BUILDING_LABELS[targetLevel + 1] : "최종 단계"]], actions: [{ label: "공사 현황 확인", primary: true, onClick: () => { closeGameModal(); finishResolution(); } }] });
+    return;
+  }
   if (property.level >= LANDMARK_LEVEL) {
     showToast(`${tile.name} 랜드마크`, "SAP와 SAP Labs를 모두 갖춘 최고 단계 도시입니다.", "★", player.color);
     return finishResolution();
@@ -504,8 +547,9 @@ function offerUpgrade(tile, index) {
   const nextLevel = property.level + 1;
   const cost = upgradeCost(tile, nextLevel);
   const canBuild = nextLevel <= unlocked && player.cash >= cost;
-  showModal({ icon: tile.flag, eyebrow: "CITY DEVELOPMENT", title: `${tile.name}를 ${BUILDING_LABELS[nextLevel]}로 성장시킬까요?`, body: nextLevel > unlocked ? `세계 일주 ${nextLevel - 1}회를 완료하면 ${BUILDING_LABELS[nextLevel]} 건설이 해금됩니다.` : `건물을 성장시키면 통행료가 ${TOLL_MULTIPLIERS[nextLevel]}배로 올라갑니다.`, color: player.color, stats: [["현재 건물", BUILDING_LABELS[property.level]], ["다음 건물", BUILDING_LABELS[nextLevel]], ["건설 비용", `C ${cost}`], ["예상 통행료", `C ${Math.round(tile.fee * TOLL_MULTIPLIERS[nextLevel] * (hasMonopoly(player.id, tile.group) ? 2 : 1))}`]], actions: [
-    { label: canBuild ? `${BUILDING_LABELS[nextLevel]} 건설` : nextLevel > unlocked ? "아직 잠김" : "현금 부족", primary: true, disabled: !canBuild, onClick: () => { player.cash -= cost; property.level = nextLevel; property.invested += cost; addLog(`${player.name} 팀: ${tile.name} ${BUILDING_LABELS[nextLevel]} 완공`, player.color); closeGameModal(); showToast("Development complete", `${tile.name} · ${BUILDING_LABELS[nextLevel]}`, "↑", player.color); finishResolution(); } },
+  const duration = constructionDuration(nextLevel);
+  showModal({ icon: tile.flag, eyebrow: "CITY DEVELOPMENT", title: `${tile.name}를 ${BUILDING_LABELS[nextLevel]}로 성장시킬까요?`, body: nextLevel > unlocked ? `세계 일주 ${nextLevel - 1}회를 완료하면 ${BUILDING_LABELS[nextLevel]} 건설이 해금됩니다.` : `${BUILDING_LABELS[nextLevel]}는 ${duration}턴 뒤 완공되며, 공사 중에는 통행료와 인수가 중지됩니다.`, color: player.color, stats: [["현재 건물", BUILDING_LABELS[property.level]], ["다음 건물", BUILDING_LABELS[nextLevel]], ["건설 기간", `${duration}턴`], ["건설 비용", `C ${cost}`]], actions: [
+    { label: canBuild ? `${BUILDING_LABELS[nextLevel]} 건설` : nextLevel > unlocked ? "아직 잠김" : "현금 부족", primary: true, disabled: !canBuild, onClick: () => { player.cash -= cost; property.invested += cost; beginConstruction(property, nextLevel); addLog(`${player.name} 팀: ${tile.name} ${BUILDING_LABELS[nextLevel]} 건설 시작 (${duration}턴)`, player.color); closeGameModal(); showToast("Construction started", `${tile.name} · ${BUILDING_LABELS[nextLevel]} · ${duration}턴`, "▥", player.color); finishResolution(); } },
     { label: "현재 상태 유지", onClick: () => { closeGameModal(); finishResolution(); } }
   ] });
 }
@@ -566,6 +610,7 @@ async function nextTurn() {
   const active = state.players.filter(player => player.active);
   if (active.length <= 1) return active[0] ? showVictory(active[0]) : null;
   const skipped = [];
+  const completedConstruction = [];
   let cursor = state.current;
   const maxHops = state.players.length * 2;
   for (let hop = 0; hop < maxHops; hop++) {
@@ -586,6 +631,7 @@ async function nextTurn() {
     state.turn++;
     cursor = next;
     const player = currentPlayer();
+    completedConstruction.push(...advanceConstruction(player));
     if (player.skipTurns > 0) {
       player.skipTurns--;
       player.doubleStreak = 0;
@@ -601,7 +647,13 @@ async function nextTurn() {
     state.phase = "ready";
     saveGame();
     renderAll();
-    showToast(`${player.name} turn`, skipped.length ? `${skipped.join(", ")} 팀의 휴식 턴을 건너뛰었습니다.` : "글로벌 경로가 준비되었습니다.", skipped.length ? "☁" : "→", player.color);
+    if (completedConstruction.length) {
+      const completedNames = completedConstruction.map(item => `${item.tile.name} ${BUILDING_LABELS[item.level]}`).join(", ");
+      showToast("Construction complete", `${completedNames} 완공`, "✓", player.color);
+      playTone(760, .12);
+    } else {
+      showToast(`${player.name} turn`, skipped.length ? `${skipped.join(", ")} 팀의 휴식 턴을 건너뛰었습니다.` : "글로벌 경로가 준비되었습니다.", skipped.length ? "☁" : "→", player.color);
+    }
     return;
   }
 }
@@ -748,7 +800,17 @@ function loadSaved() {
       parsed.extraRoll = false;
       if (parsed.players[parsed.current]) parsed.players[parsed.current].doubleStreak = 0;
     }
-    Object.values(parsed.properties || {}).forEach(property => { property.level = Math.max(1, Math.min(LANDMARK_LEVEL, property.level || 1)); });
+    Object.values(parsed.properties || {}).forEach(property => {
+      if (property.construction) {
+        property.level = Math.max(0, Math.min(LANDMARK_LEVEL, Number(property.level) || 0));
+        property.construction.targetLevel = Math.max(1, Math.min(LANDMARK_LEVEL, Number(property.construction.targetLevel) || 1));
+        property.construction.turnsRemaining = Math.max(1, Math.min(constructionDuration(property.construction.targetLevel), Number(property.construction.turnsRemaining) || 1));
+        property.construction.totalTurns = constructionDuration(property.construction.targetLevel);
+        if (property.construction.targetLevel <= property.level) delete property.construction;
+      } else {
+        property.level = Math.max(1, Math.min(LANDMARK_LEVEL, property.level || 1));
+      }
+    });
     return parsed;
   } catch { return null; }
 }
